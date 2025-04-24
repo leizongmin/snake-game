@@ -20,7 +20,6 @@ class SheGame {
         this.fx = 'right';
         this.df = 0;
         this.speed = 150;
-        this.speedIncrement = 2;
         
         // 食之位置
         this.shi = this.createFood();
@@ -234,17 +233,6 @@ class SheGame {
             case 'right': head.x++; break;
         }
 
-        // 判断是否吃到食物
-        if (head.x === this.shi.x && head.y === this.shi.y) {
-            this.shi = this.createFood();
-            this.df += 10;
-            document.getElementById('score').textContent = `得分：${this.df}`;
-            // 加速
-            this.speed = Math.max(50, this.speed - this.speedIncrement);
-        } else {
-            this.she.pop();
-        }
-
         // 判断是否游戏结束
         if (this.isGameOver(head)) {
             this.currentState = this.state.OVER;
@@ -252,7 +240,25 @@ class SheGame {
             return;
         }
 
-        this.she.unshift(head);
+        // 判断是否吃到食物
+        if (head.x === this.shi.x && head.y === this.shi.y) {
+            this.she.unshift(head);  // 先添加新头
+            this.shi = this.createFood();
+            this.df += 10;
+            document.getElementById('score').textContent = `得分：${this.df}`;
+            
+            // 设置新速度
+            const baseSpeed = 150;
+            const minSpeed = 50;
+            const speedReduction = this.she.length * 0.5;
+            this.speed = Math.max(minSpeed, baseSpeed - speedReduction);
+            
+            // 重启游戏循环以应用新速度
+            this.start();
+        } else {
+            this.she.pop();  // 删除尾部
+            this.she.unshift(head);  // 添加新头
+        }
     }
 
     // 判断游戏结束
