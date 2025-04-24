@@ -359,27 +359,6 @@ class SheGame {
             }
         });
 
-        // 移动端控制
-        const dpad = document.querySelector('.d-pad');
-        if (dpad) {
-            dpad.addEventListener('click', (e) => {
-                const btn = e.target.closest('.d-btn');
-                if (!btn || this.currentState !== this.state.PLAYING) return;
-
-                const direction = btn.dataset.direction;
-                const opposites = {
-                    'up': 'down',
-                    'down': 'up',
-                    'left': 'right',
-                    'right': 'left'
-                };
-                
-                if (opposites[direction] !== this.fx) {
-                    this.fx = direction;
-                }
-            });
-        }
-
         // 触摸滑动控制
         let touchStartX = 0;
         let touchStartY = 0;
@@ -393,6 +372,12 @@ class SheGame {
         }, { passive: false });
 
         this.hb.addEventListener('touchend', (e) => {
+            if (this.currentState === this.state.READY) {
+                this.currentState = this.state.PLAYING;
+                this.start();
+                return;
+            }
+
             if (this.currentState !== this.state.PLAYING) return;
 
             const touchEndX = e.changedTouches[0].clientX;
@@ -415,6 +400,16 @@ class SheGame {
                 } else if (dy < 0 && this.fx !== 'down') {
                     this.fx = 'up';
                 }
+            }
+        });
+
+        // 双击暂停
+        this.hb.addEventListener('dblclick', () => {
+            if (this.currentState === this.state.PLAYING) {
+                this.currentState = this.state.PAUSED;
+                this.showPauseScreen();
+            } else if (this.currentState === this.state.PAUSED) {
+                this.currentState = this.state.PLAYING;
             }
         });
     }

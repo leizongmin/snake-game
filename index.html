@@ -19,9 +19,10 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
             min-height: 100vh;
             margin: 0;
-            padding: 20px;
+            padding: 0;
             color: var(--text-color);
         }
 
@@ -30,7 +31,6 @@
             padding: 30px;
             border-radius: 15px;
             box-shadow: 0 8px 16px var(--shadow-color);
-            margin-top: 20px;
             transition: transform 0.3s ease;
         }
 
@@ -192,28 +192,6 @@
         <h1 class="title">贪食蛇戏</h1>
         <div id="score">得分：0</div>
         <canvas id="gameCanvas" width="400" height="400"></canvas>
-        <div class="controls">
-            <p class="desktop-controls">
-                <span class="key">←</span>
-                <span class="key">↑</span>
-                <span class="key">→</span>
-                <span class="key">↓</span>
-                控制方向
-            </p>
-            <p class="desktop-controls">
-                <span class="key">Space</span>
-                暂停/继续
-            </p>
-        </div>
-        <div class="mobile-controls">
-            <div class="d-pad">
-                <button class="d-btn up" data-direction="up">↑</button>
-                <button class="d-btn left" data-direction="left">←</button>
-                <button class="d-btn right" data-direction="right">→</button>
-                <button class="d-btn down" data-direction="down">↓</button>
-            </div>
-            <button class="pause-btn">暂停</button>
-        </div>
     </div>
     <script src="game.js"></script>
 </body>
