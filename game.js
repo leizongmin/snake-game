@@ -45,7 +45,11 @@ class SheGame {
         // 绘制提示
         this.ctx.font = '24px 楷体';
         this.ctx.fillStyle = '#666';
-        this.ctx.fillText('按空格键开始', this.hb.width/2, this.hb.height/2 + 20);
+        if (window.innerWidth <= 600) {
+            this.ctx.fillText('点击开始', this.hb.width/2, this.hb.height/2 + 20);
+        } else {
+            this.ctx.fillText('按空格键开始', this.hb.width/2, this.hb.height/2 + 20);
+        }
         
         // 绘制装饰
         this.ctx.strokeStyle = '#4CAF50';
@@ -305,6 +309,7 @@ class SheGame {
 
     // 绑定事件
     bindEvents() {
+        // 键盘控制
         document.addEventListener('keydown', (e) => {
             const keyMap = {
                 'ArrowUp': 'up',
@@ -344,6 +349,65 @@ class SheGame {
                 
                 if (opposites[key] !== this.fx) {
                     this.fx = key;
+                }
+            }
+        });
+
+        // 移动端控制
+        const dpad = document.querySelector('.d-pad');
+        if (dpad) {
+            dpad.addEventListener('click', (e) => {
+                const btn = e.target.closest('.d-btn');
+                if (!btn || this.currentState !== this.state.PLAYING) return;
+
+                const direction = btn.dataset.direction;
+                const opposites = {
+                    'up': 'down',
+                    'down': 'up',
+                    'left': 'right',
+                    'right': 'left'
+                };
+                
+                if (opposites[direction] !== this.fx) {
+                    this.fx = direction;
+                }
+            });
+        }
+
+        // 触摸滑动控制
+        let touchStartX = 0;
+        let touchStartY = 0;
+        this.hb.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        });
+
+        this.hb.addEventListener('touchmove', (e) => {
+            e.preventDefault(); // 防止页面滚动
+        }, { passive: false });
+
+        this.hb.addEventListener('touchend', (e) => {
+            if (this.currentState !== this.state.PLAYING) return;
+
+            const touchEndX = e.changedTouches[0].clientX;
+            const touchEndY = e.changedTouches[0].clientY;
+            const dx = touchEndX - touchStartX;
+            const dy = touchEndY - touchStartY;
+
+            // 判断滑动方向
+            if (Math.abs(dx) > Math.abs(dy)) {
+                // 水平滑动
+                if (dx > 0 && this.fx !== 'left') {
+                    this.fx = 'right';
+                } else if (dx < 0 && this.fx !== 'right') {
+                    this.fx = 'left';
+                }
+            } else {
+                // 垂直滑动
+                if (dy > 0 && this.fx !== 'up') {
+                    this.fx = 'down';
+                } else if (dy < 0 && this.fx !== 'down') {
+                    this.fx = 'up';
                 }
             }
         });

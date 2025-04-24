@@ -107,6 +107,61 @@
             box-shadow: 0 2px 4px var(--shadow-color);
         }
 
+        .mobile-controls {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .d-pad {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            margin: 0 auto;
+        }
+
+        .d-btn {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            border: none;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 10px;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .d-btn:active {
+            transform: scale(0.95);
+            background: #3d8b40;
+        }
+
+        .d-btn.up { top: 0; left: 50px; }
+        .d-btn.left { top: 50px; left: 0; }
+        .d-btn.right { top: 50px; right: 0; }
+        .d-btn.down { bottom: 0; left: 50px; }
+
+        .pause-btn {
+            display: block;
+            margin: 20px auto 0;
+            padding: 10px 20px;
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .pause-btn:active {
+            transform: scale(0.95);
+            background: #d32f2f;
+        }
+
         @media (max-width: 600px) {
             .game-container {
                 padding: 15px;
@@ -114,11 +169,20 @@
 
             canvas {
                 width: 100%;
+                max-width: 400px;
                 height: auto;
             }
 
             .title {
                 font-size: 28px;
+            }
+
+            .desktop-controls {
+                display: none;
+            }
+
+            .mobile-controls {
+                display: block;
             }
         }
     </style>
@@ -129,17 +193,26 @@
         <div id="score">得分：0</div>
         <canvas id="gameCanvas" width="400" height="400"></canvas>
         <div class="controls">
-            <p>
+            <p class="desktop-controls">
                 <span class="key">←</span>
                 <span class="key">↑</span>
                 <span class="key">→</span>
                 <span class="key">↓</span>
                 控制方向
             </p>
-            <p>
+            <p class="desktop-controls">
                 <span class="key">Space</span>
                 暂停/继续
             </p>
+        </div>
+        <div class="mobile-controls">
+            <div class="d-pad">
+                <button class="d-btn up" data-direction="up">↑</button>
+                <button class="d-btn left" data-direction="left">←</button>
+                <button class="d-btn right" data-direction="right">→</button>
+                <button class="d-btn down" data-direction="down">↓</button>
+            </div>
+            <button class="pause-btn">暂停</button>
         </div>
     </div>
     <script src="game.js"></script>
