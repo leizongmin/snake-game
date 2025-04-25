@@ -7,12 +7,12 @@
     <!-- 使用合成音效，无需预加载 -->
     <style>
       :root {
-        --primary-color: #8BC34A;
-        --accent-color: #FF7043;
-        --bg-color: #E8F5E9;
-        --text-color: #33691E;
+        --primary-color: #8bc34a;
+        --accent-color: #ff7043;
+        --bg-color: #e8f5e9;
+        --text-color: #33691e;
         --shadow-color: rgba(0, 0, 0, 0.08);
-        --grid-color: #C8E6C9;
+        --grid-color: #c8e6c9;
       }
 
       body {
@@ -32,8 +32,9 @@
         background: rgba(255, 255, 255, 0.95);
         padding: 36px;
         border-radius: 20px;
-        box-shadow: 0 10px 20px var(--shadow-color),
-                    inset 0 0 30px rgba(139, 195, 74, 0.1);
+        box-shadow:
+          0 10px 20px var(--shadow-color),
+          inset 0 0 30px rgba(139, 195, 74, 0.1);
         transition: transform 0.3s ease;
         border: 1px solid rgba(139, 195, 74, 0.2);
       }
@@ -67,12 +68,17 @@
         display: block;
         border: 2px solid var(--primary-color);
         border-radius: 12px;
-        background: linear-gradient(45deg, var(--grid-color) 25%, transparent 25%),
-                    linear-gradient(-45deg, var(--grid-color) 25%, transparent 25%),
-                    linear-gradient(45deg, transparent 75%, var(--grid-color) 75%),
-                    linear-gradient(-45deg, transparent 75%, var(--grid-color) 75%);
+        background:
+          linear-gradient(45deg, var(--grid-color) 25%, transparent 25%),
+          linear-gradient(-45deg, var(--grid-color) 25%, transparent 25%),
+          linear-gradient(45deg, transparent 75%, var(--grid-color) 75%),
+          linear-gradient(-45deg, transparent 75%, var(--grid-color) 75%);
         background-size: 20px 20px;
-        background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+        background-position:
+          0 0,
+          0 10px,
+          10px -10px,
+          -10px 0px;
         box-shadow: 0 6px 12px var(--shadow-color);
         transition: all 0.3s ease;
       }
@@ -150,15 +156,16 @@
         width: 60px;
         height: 60px;
         border: 2px solid rgba(255, 255, 255, 0.3);
-        background: linear-gradient(145deg, var(--primary-color), #7CB342);
+        background: linear-gradient(145deg, var(--primary-color), #7cb342);
         color: white;
         border-radius: 16px;
         font-size: 28px;
         cursor: pointer;
         transition: all 0.3s ease;
         -webkit-tap-highlight-color: transparent;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1),
-                    inset 0 2px 4px rgba(255, 255, 255, 0.3);
+        box-shadow:
+          0 4px 8px rgba(0, 0, 0, 0.1),
+          inset 0 2px 4px rgba(255, 255, 255, 0.3);
       }
 
       .d-btn:active {
@@ -187,7 +194,7 @@
         display: block;
         margin: 24px auto 0;
         padding: 12px 28px;
-        background: linear-gradient(145deg, var(--accent-color), #F4511E);
+        background: linear-gradient(145deg, var(--accent-color), #f4511e);
         color: white;
         border: 2px solid rgba(255, 255, 255, 0.2);
         border-radius: 12px;
@@ -195,8 +202,9 @@
         font-family: inherit;
         cursor: pointer;
         transition: all 0.3s ease;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1),
-                    inset 0 2px 4px rgba(255, 255, 255, 0.3);
+        box-shadow:
+          0 4px 8px rgba(0, 0, 0, 0.1),
+          inset 0 2px 4px rgba(255, 255, 255, 0.3);
         letter-spacing: 2px;
       }
 
