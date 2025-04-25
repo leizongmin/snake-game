@@ -25,6 +25,10 @@ class SheGame {
     this.df = 0;
     this.speed = 150;
 
+    // 障碍物系统
+    this.zhang = [];
+    this.zhangCount = 5; // 初始障碍物数量
+    
     // 食之位置
     this.shi = this.createFood();
 
@@ -142,8 +146,39 @@ class SheGame {
         x: Math.floor(Math.random() * (this.hb.width / this.fw)),
         y: Math.floor(Math.random() * (this.hb.height / this.fw)),
       };
-    } while (this.isOnSnake(food));
+    } while (this.isOnSnake(food) || this.isOnObstacle(food));
     return food;
+  }
+
+  // 创建障碍物
+  createObstacles() {
+    this.zhang = [];
+    for (let i = 0; i < this.zhangCount; i++) {
+      let obstacle;
+      do {
+        obstacle = {
+          x: Math.floor(Math.random() * (this.hb.width / this.fw)),
+          y: Math.floor(Math.random() * (this.hb.height / this.fw)),
+        };
+      } while (
+        this.isOnSnake(obstacle) ||
+        this.isOnObstacle(obstacle) ||
+        (obstacle.x === this.shi.x && obstacle.y === this.shi.y)
+      );
+      this.zhang.push(obstacle);
+    }
+  }
+
+  // 检查位置是否在障碍物上
+  isOnObstacle(pos) {
+    return this.zhang.some(obstacle => obstacle.x === pos.x && obstacle.y === pos.y);
+  }
+
+  // 绘制障碍物
+  drawObstacles() {
+    this.zhang.forEach(obstacle => {
+      this.drawRect(obstacle.x, obstacle.y, '#607D8B');
+    });
   }
 
   // 检查位置是否在蛇身上
@@ -193,8 +228,8 @@ class SheGame {
       return;
     }
 
-    // 检查是否撞到自己
-    if (this.isOnSnake(head)) {
+    // 检查是否撞到自己或障碍物
+    if (this.isOnSnake(head) || this.isOnObstacle(head)) {
       this.gameOver();
       return;
     }
@@ -227,6 +262,7 @@ class SheGame {
     if (this.currentState === this.state.PLAYING) {
       requestAnimationFrame(() => {
         this.clear();
+        this.drawObstacles();
         this.drawFood();
         this.drawSnake();
 
@@ -253,8 +289,12 @@ class SheGame {
       this.shi = this.createFood();
       document.getElementById('score').textContent = '得分：0';
 
+      // 创建新的障碍物
+      this.createObstacles();
+
       // 清除画布并绘制初始状态
       this.clear();
+      this.drawObstacles();
       this.drawFood();
       this.drawSnake();
 
