@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>贪食蛇戏</title>
+    <!-- 预加载音效 -->
+    <link rel="preload" href="sounds/eat.mp3" as="fetch" type="audio/mpeg">
+    <link rel="preload" href="sounds/move.mp3" as="fetch" type="audio/mpeg">
+    <link rel="preload" href="sounds/crash.mp3" as="fetch" type="audio/mpeg">
+    <link rel="preload" href="sounds/start.mp3" as="fetch" type="audio/mpeg">
+    <link rel="preload" href="sounds/pause.mp3" as="fetch" type="audio/mpeg">
     <style>
         :root {
             --primary-color: #4CAF50;
@@ -193,6 +199,12 @@
         <div id="score">得分：0</div>
         <canvas id="gameCanvas" width="400" height="400"></canvas>
     </div>
+    <script src="sounds.js"></script>
     <script src="game.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const game = new SheGame();
+        });
+    </script>
 </body>
 </html>

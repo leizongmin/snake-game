@@ -24,6 +24,9 @@ class SheGame {
         // 食之位置
         this.shi = this.createFood();
         
+        // 初始化音效管理器
+        this.soundManager = new SoundManager();
+        
         // 绑定事件
         this.bindEvents();
         
@@ -247,6 +250,9 @@ class SheGame {
             this.df += 10;
             document.getElementById('score').textContent = `得分：${this.df}`;
             
+            // 播放吃食音效
+            this.soundManager.play('eat');
+            
             // 设置新速度
             const baseSpeed = 150;
             const minSpeed = 50;
@@ -263,11 +269,18 @@ class SheGame {
 
     // 判断游戏结束
     isGameOver(head) {
-        return head.x < 0 || 
+        const isOver = head.x < 0 || 
                head.x >= this.hb.width / this.fw ||
                head.y < 0 || 
                head.y >= this.hb.height / this.fw ||
                this.she.some(seg => seg.x === head.x && seg.y === head.y);
+        
+        if (isOver) {
+            // 播放撞墙音效
+            this.soundManager.play('crash');
+        }
+        
+        return isOver;
     }
 
     // 游戏结束动画
@@ -310,6 +323,7 @@ class SheGame {
         this.shi = this.createFood();
         this.currentState = this.state.READY;
         document.getElementById('score').textContent = '得分：0';
+        this.soundManager.stopAll();
         this.showStartScreen();
     }
 
@@ -430,9 +444,12 @@ class SheGame {
             clearInterval(this._interval);
         }
         this.update();
-        this._interval = setInterval(() => this.update(), this.speed);
+        this._interval = setInterval(() => {
+            this.update();
+            // 播放移动音效
+            if (this.currentState === this.state.PLAYING) {
+                this.soundManager.play('move');
+            }
+        }, this.speed);
     }
 }
-
-// 启动游戏
-new SheGame();
