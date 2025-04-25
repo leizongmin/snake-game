@@ -15,6 +15,15 @@ class SheGame {
     };
     this.currentState = this.state.READY;
 
+    // 游戏模式
+    this.modes = {
+      NORMAL: { name: '普通', speed: 150, zhangCount: 5 },
+      FAST: { name: '快速', speed: 100, zhangCount: 3 },
+      HARD: { name: '困难', speed: 120, zhangCount: 8 },
+      EXPERT: { name: '专家', speed: 80, zhangCount: 12 }
+    };
+    this.currentMode = this.modes.NORMAL;
+
     // 蛇之属性
     this.she = [
       { x: 3, y: 1 },
@@ -23,11 +32,11 @@ class SheGame {
     ];
     this.fx = 'right';
     this.df = 0;
-    this.speed = 150;
+    this.speed = this.currentMode.speed;
 
     // 障碍物系统
     this.zhang = [];
-    this.zhangCount = 5; // 初始障碍物数量
+    this.zhangCount = this.currentMode.zhangCount;
     
     // 食之位置
     this.shi = this.createFood();
@@ -50,33 +59,41 @@ class SheGame {
     this.ctx.font = '36px 楷体';
     this.ctx.fillStyle = '#2c3e50';
     this.ctx.textAlign = 'center';
-    this.ctx.fillText('贪食蛇戏', this.hb.width / 2, this.hb.height / 2 - 50);
+    this.ctx.fillText('贪食蛇戏', this.hb.width / 2, this.hb.height / 2 - 100);
 
-    // 绘制提示
+    // 绘制模式选择
     this.ctx.font = '24px 楷体';
     this.ctx.fillStyle = '#666';
-    if (window.innerWidth <= 600) {
-      this.ctx.fillText('点击开始', this.hb.width / 2, this.hb.height / 2 + 20);
-    } else {
-      this.ctx.fillText(
-        '按空格键开始',
-        this.hb.width / 2,
-        this.hb.height / 2 + 20
+    Object.values(this.modes).forEach((mode, index) => {
+      const y = this.hb.height / 2 - 40 + index * 40;
+      const isSelected = mode === this.currentMode;
+      
+      // 绘制选择框
+      this.ctx.strokeStyle = isSelected ? '#4CAF50' : '#666';
+      this.ctx.lineWidth = isSelected ? 2 : 1;
+      this.ctx.beginPath();
+      this.ctx.roundRect(
+        this.hb.width / 2 - 80,
+        y - 25,
+        160,
+        35,
+        5
       );
-    }
+      this.ctx.stroke();
 
-    // 绘制装饰
-    this.ctx.strokeStyle = '#4CAF50';
-    this.ctx.lineWidth = 2;
-    this.ctx.beginPath();
-    this.ctx.roundRect(
-      this.hb.width / 2 - 100,
-      this.hb.height / 2 - 80,
-      200,
-      140,
-      10
-    );
-    this.ctx.stroke();
+      // 绘制模式名称
+      this.ctx.fillStyle = isSelected ? '#4CAF50' : '#666';
+      this.ctx.fillText(mode.name, this.hb.width / 2, y);
+    });
+
+    // 绘制提示
+    this.ctx.font = '20px 楷体';
+    this.ctx.fillStyle = '#666';
+    if (window.innerWidth <= 600) {
+      this.ctx.fillText('点击选择模式并开始', this.hb.width / 2, this.hb.height / 2 + 120);
+    } else {
+      this.ctx.fillText('按上下键选择模式，空格键开始', this.hb.width / 2, this.hb.height / 2 + 120);
+    }
   }
 
   // 绘制暂停界面
@@ -286,6 +303,9 @@ class SheGame {
       ];
       this.fx = 'right';
       this.df = 0;
+      this.speed = this.currentMode.speed;
+      this.zhangCount = this.currentMode.zhangCount;
+      this.zhang = [];
       this.shi = this.createFood();
       document.getElementById('score').textContent = '得分：0';
 
@@ -333,19 +353,28 @@ class SheGame {
     this.ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
     this.ctx.fillRect(0, 0, this.hb.width, this.hb.height);
 
+    // 绘制标题
     this.ctx.font = '48px 楷体';
     this.ctx.fillStyle = '#FF5252';
     this.ctx.textAlign = 'center';
-    this.ctx.fillText('游戏结束', this.hb.width / 2, this.hb.height / 2 - 50);
+    this.ctx.fillText('游戏结束', this.hb.width / 2, this.hb.height / 2 - 80);
 
+    // 绘制模式和得分
     this.ctx.font = '24px 楷体';
     this.ctx.fillStyle = 'white';
     this.ctx.fillText(
-      '最终得分：' + (this.she.length - 3),
+      `模式：${this.currentMode.name}`,
       this.hb.width / 2,
-      this.hb.height / 2 + 20
+      this.hb.height / 2 - 30
+    );
+    this.ctx.fillText(
+      `最终得分：${this.she.length - 3}`,
+      this.hb.width / 2,
+      this.hb.height / 2 + 10
     );
 
+    // 绘制提示
+    this.ctx.font = '20px 楷体';
     if (window.innerWidth <= 600) {
       this.ctx.fillText(
         '点击重新开始',
@@ -359,6 +388,19 @@ class SheGame {
         this.hb.height / 2 + 60
       );
     }
+
+    // 绘制装饰
+    this.ctx.strokeStyle = '#FF5252';
+    this.ctx.lineWidth = 2;
+    this.ctx.beginPath();
+    this.ctx.roundRect(
+      this.hb.width / 2 - 120,
+      this.hb.height / 2 - 100,
+      240,
+      200,
+      10
+    );
+    this.ctx.stroke();
   }
 
   // 处理按键事件
@@ -373,9 +415,20 @@ class SheGame {
 
     if (key) {
       e.preventDefault();
-      // 设置待行方向
       if (this.currentState === this.state.PLAYING) {
+        // 设置待行方向
         this.df = key;
+      } else if (this.currentState === this.state.READY) {
+        // 选择游戏模式
+        const modes = Object.values(this.modes);
+        const currentIndex = modes.indexOf(this.currentMode);
+        if (key === 'up' && currentIndex > 0) {
+          this.currentMode = modes[currentIndex - 1];
+          this.showStartScreen();
+        } else if (key === 'down' && currentIndex < modes.length - 1) {
+          this.currentMode = modes[currentIndex + 1];
+          this.showStartScreen();
+        }
       }
     }
 
@@ -394,11 +447,44 @@ class SheGame {
   }
 
   // 处理点击事件
-  handleClick() {
-    if (
-      this.currentState === this.state.READY ||
-      this.currentState === this.state.OVER
-    ) {
+  handleClick(e) {
+    if (this.currentState === this.state.READY) {
+      // 获取点击坐标
+      const rect = this.hb.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      // 检查是否点击了模式选项
+      let clickedMode = null;
+      Object.values(this.modes).forEach((mode, index) => {
+        const buttonY = this.hb.height / 2 - 40 + index * 40;
+        if (
+          x >= this.hb.width / 2 - 80 &&
+          x <= this.hb.width / 2 + 80 &&
+          y >= buttonY - 25 &&
+          y <= buttonY + 10
+        ) {
+          clickedMode = mode;
+        }
+      });
+      
+      if (clickedMode) {
+        this.currentMode = clickedMode;
+        this.showStartScreen();
+        return;
+      }
+
+      // 如果点击了当前选中的模式，开始游戏
+      const selectedY = this.hb.height / 2 - 40 + Object.values(this.modes).indexOf(this.currentMode) * 40;
+      if (
+        x >= this.hb.width / 2 - 80 &&
+        x <= this.hb.width / 2 + 80 &&
+        y >= selectedY - 25 &&
+        y <= selectedY + 10
+      ) {
+        this.startGame();
+      }
+    } else if (this.currentState === this.state.OVER) {
       this.startGame();
     } else if (
       this.currentState === this.state.PLAYING ||
@@ -416,8 +502,8 @@ class SheGame {
     });
 
     // 画布点击事件
-    this.hb.addEventListener('click', () => {
-      this.handleClick();
+    this.hb.addEventListener('click', (e) => {
+      this.handleClick(e);
     });
 
     // 触控事件
