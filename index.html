@@ -1,222 +1,234 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>贪食蛇戏</title>
     <!-- 使用合成音效，无需预加载 -->
     <style>
-        :root {
-            --primary-color: #4CAF50;
-            --accent-color: #FF5252;
-            --bg-color: #f5f5f5;
-            --text-color: #2c3e50;
-            --shadow-color: rgba(0, 0, 0, 0.1);
-        }
+      :root {
+        --primary-color: #4caf50;
+        --accent-color: #ff5252;
+        --bg-color: #f5f5f5;
+        --text-color: #2c3e50;
+        --shadow-color: rgba(0, 0, 0, 0.1);
+      }
 
-        body {
-            background: var(--bg-color);
-            font-family: "楷体", "KaiTi", serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 0;
-            color: var(--text-color);
-        }
+      body {
+        background: var(--bg-color);
+        font-family: '楷体', 'KaiTi', serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        margin: 0;
+        padding: 0;
+        color: var(--text-color);
+      }
 
+      .game-container {
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 8px 16px var(--shadow-color);
+        transition: transform 0.3s ease;
+      }
+
+      .game-container:hover {
+        transform: translateY(-5px);
+      }
+
+      .title {
+        font-size: 36px;
+        color: var(--text-color);
+        margin-bottom: 20px;
+        text-align: center;
+        text-shadow: 2px 2px 4px var(--shadow-color);
+        position: relative;
+      }
+
+      .title:after {
+        content: '';
+        display: block;
+        width: 60px;
+        height: 3px;
+        background: var(--primary-color);
+        margin: 10px auto;
+        border-radius: 2px;
+      }
+
+      canvas {
+        display: block;
+        border: 3px solid var(--text-color);
+        border-radius: 10px;
+        background: #fafafa;
+        box-shadow: 0 4px 8px var(--shadow-color);
+        transition: transform 0.2s ease;
+      }
+
+      canvas:hover {
+        transform: scale(1.01);
+      }
+
+      #score {
+        font-size: 28px;
+        color: var(--text-color);
+        margin: 20px 0;
+        text-align: center;
+        padding: 10px 20px;
+        background: rgba(76, 175, 80, 0.1);
+        border-radius: 8px;
+        border: 2px solid var(--primary-color);
+      }
+
+      .controls {
+        text-align: center;
+        margin-top: 20px;
+        color: var(--text-color);
+        font-size: 18px;
+        line-height: 1.6;
+        padding: 15px;
+        background: rgba(44, 62, 80, 0.05);
+        border-radius: 8px;
+      }
+
+      .controls p {
+        margin: 5px 0;
+      }
+
+      .mobile-tip {
+        display: none;
+      }
+
+      @media (max-width: 768px) {
+        .mobile-tip {
+          display: block;
+          color: var(--primary-color);
+          font-weight: bold;
+        }
+      }
+
+      .key {
+        display: inline-block;
+        padding: 3px 8px;
+        background: white;
+        border: 1px solid var(--text-color);
+        border-radius: 4px;
+        margin: 0 2px;
+        font-size: 14px;
+        box-shadow: 0 2px 4px var(--shadow-color);
+      }
+
+      .mobile-controls {
+        display: none;
+        margin-top: 20px;
+      }
+
+      .d-pad {
+        position: relative;
+        width: 150px;
+        height: 150px;
+        margin: 0 auto;
+      }
+
+      .d-btn {
+        position: absolute;
+        width: 50px;
+        height: 50px;
+        border: none;
+        background: var(--primary-color);
+        color: white;
+        border-radius: 10px;
+        font-size: 24px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      .d-btn:active {
+        transform: scale(0.95);
+        background: #3d8b40;
+      }
+
+      .d-btn.up {
+        top: 0;
+        left: 50px;
+      }
+      .d-btn.left {
+        top: 50px;
+        left: 0;
+      }
+      .d-btn.right {
+        top: 50px;
+        right: 0;
+      }
+      .d-btn.down {
+        bottom: 0;
+        left: 50px;
+      }
+
+      .pause-btn {
+        display: block;
+        margin: 20px auto 0;
+        padding: 10px 20px;
+        background: var(--accent-color);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 18px;
+        font-family: inherit;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .pause-btn:active {
+        transform: scale(0.95);
+        background: #d32f2f;
+      }
+
+      @media (max-width: 600px) {
         .game-container {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 8px 16px var(--shadow-color);
-            transition: transform 0.3s ease;
-        }
-
-        .game-container:hover {
-            transform: translateY(-5px);
-        }
-
-        .title {
-            font-size: 36px;
-            color: var(--text-color);
-            margin-bottom: 20px;
-            text-align: center;
-            text-shadow: 2px 2px 4px var(--shadow-color);
-            position: relative;
-        }
-
-        .title:after {
-            content: '';
-            display: block;
-            width: 60px;
-            height: 3px;
-            background: var(--primary-color);
-            margin: 10px auto;
-            border-radius: 2px;
+          padding: 15px;
         }
 
         canvas {
-            display: block;
-            border: 3px solid var(--text-color);
-            border-radius: 10px;
-            background: #fafafa;
-            box-shadow: 0 4px 8px var(--shadow-color);
-            transition: transform 0.2s ease;
+          width: 100%;
+          max-width: 400px;
+          height: auto;
         }
 
-        canvas:hover {
-            transform: scale(1.01);
+        .title {
+          font-size: 28px;
         }
 
-        #score {
-            font-size: 28px;
-            color: var(--text-color);
-            margin: 20px 0;
-            text-align: center;
-            padding: 10px 20px;
-            background: rgba(76, 175, 80, 0.1);
-            border-radius: 8px;
-            border: 2px solid var(--primary-color);
-        }
-
-        .controls {
-            text-align: center;
-            margin-top: 20px;
-            color: var(--text-color);
-            font-size: 18px;
-            line-height: 1.6;
-            padding: 15px;
-            background: rgba(44, 62, 80, 0.05);
-            border-radius: 8px;
-        }
-
-        .controls p {
-            margin: 5px 0;
-        }
-
-        .mobile-tip {
-            display: none;
-        }
-
-        @media (max-width: 768px) {
-            .mobile-tip {
-                display: block;
-                color: var(--primary-color);
-                font-weight: bold;
-            }
-        }
-
-        .key {
-            display: inline-block;
-            padding: 3px 8px;
-            background: white;
-            border: 1px solid var(--text-color);
-            border-radius: 4px;
-            margin: 0 2px;
-            font-size: 14px;
-            box-shadow: 0 2px 4px var(--shadow-color);
+        .desktop-controls {
+          display: none;
         }
 
         .mobile-controls {
-            display: none;
-            margin-top: 20px;
+          display: block;
         }
-
-        .d-pad {
-            position: relative;
-            width: 150px;
-            height: 150px;
-            margin: 0 auto;
-        }
-
-        .d-btn {
-            position: absolute;
-            width: 50px;
-            height: 50px;
-            border: none;
-            background: var(--primary-color);
-            color: white;
-            border-radius: 10px;
-            font-size: 24px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        .d-btn:active {
-            transform: scale(0.95);
-            background: #3d8b40;
-        }
-
-        .d-btn.up { top: 0; left: 50px; }
-        .d-btn.left { top: 50px; left: 0; }
-        .d-btn.right { top: 50px; right: 0; }
-        .d-btn.down { bottom: 0; left: 50px; }
-
-        .pause-btn {
-            display: block;
-            margin: 20px auto 0;
-            padding: 10px 20px;
-            background: var(--accent-color);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 18px;
-            font-family: inherit;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .pause-btn:active {
-            transform: scale(0.95);
-            background: #d32f2f;
-        }
-
-        @media (max-width: 600px) {
-            .game-container {
-                padding: 15px;
-            }
-
-            canvas {
-                width: 100%;
-                max-width: 400px;
-                height: auto;
-            }
-
-            .title {
-                font-size: 28px;
-            }
-
-            .desktop-controls {
-                display: none;
-            }
-
-            .mobile-controls {
-                display: block;
-            }
-        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="game-container">
-        <h1 class="title">贪食蛇戏</h1>
-        <div id="score">得分：0</div>
-        <canvas id="gameCanvas" width="400" height="400"></canvas>
-        <div class="controls">
-            <p>方向键控制移动</p>
-            <p>空格键暂停/继续</p>
-            <p class="mobile-tip">手机端可滑动屏幕控制方向</p>
-        </div>
+      <h1 class="title">贪食蛇戏</h1>
+      <div id="score">得分：0</div>
+      <canvas id="gameCanvas" width="400" height="400"></canvas>
+      <div class="controls">
+        <p>方向键控制移动</p>
+        <p>空格键暂停/继续</p>
+        <p class="mobile-tip">手机端可滑动屏幕控制方向</p>
+      </div>
     </div>
     <script src="sounds.js"></script>
     <script src="game.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const game = new SheGame();
-        });
+      document.addEventListener('DOMContentLoaded', () => {
+        const game = new SheGame();
+      });
     </script>
-</body>
+  </body>
 </html>
