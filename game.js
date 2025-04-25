@@ -107,112 +107,28 @@ class SheGame {
         this.ctx.fill();
     }
 
-    // 清屏
+    // 清空画布
     clear() {
         this.ctx.fillStyle = '#fafafa';
         this.ctx.fillRect(0, 0, this.hb.width, this.hb.height);
-        
-        // 绘制网格
-        this.ctx.strokeStyle = '#eee';
-        this.ctx.lineWidth = 0.5;
-        for(let i = 0; i <= this.hb.width; i += this.fw) {
-            this.ctx.beginPath();
-            this.ctx.moveTo(i, 0);
-            this.ctx.lineTo(i, this.hb.height);
-            this.ctx.stroke();
-        }
-        for(let i = 0; i <= this.hb.height; i += this.fw) {
-            this.ctx.beginPath();
-            this.ctx.moveTo(0, i);
-            this.ctx.lineTo(this.hb.width, i);
-            this.ctx.stroke();
-        }
     }
 
-    // 画蛇
+    // 绘制蛇
     drawSnake() {
-        this.she.forEach((seg, i) => {
-            if (i === 0) {
-                // 蛇头特殊样式
-                this.drawRect(seg.x, seg.y, '#4CAF50');
-                
-                // 绘制蛇眼
-                const eyeSize = 3;
-                const eyeOffset = 4;
-                this.ctx.fillStyle = 'white';
-                
-                // 根据方向设置蛇眼位置
-                let eyeX1, eyeY1, eyeX2, eyeY2;
-                switch(this.fx) {
-                    case 'right':
-                        eyeX1 = seg.x * this.fw + this.fw - eyeOffset;
-                        eyeY1 = seg.y * this.fw + eyeOffset;
-                        eyeX2 = seg.x * this.fw + this.fw - eyeOffset;
-                        eyeY2 = seg.y * this.fw + this.fw - eyeOffset;
-                        break;
-                    case 'left':
-                        eyeX1 = seg.x * this.fw + eyeOffset;
-                        eyeY1 = seg.y * this.fw + eyeOffset;
-                        eyeX2 = seg.x * this.fw + eyeOffset;
-                        eyeY2 = seg.y * this.fw + this.fw - eyeOffset;
-                        break;
-                    case 'up':
-                        eyeX1 = seg.x * this.fw + eyeOffset;
-                        eyeY1 = seg.y * this.fw + eyeOffset;
-                        eyeX2 = seg.x * this.fw + this.fw - eyeOffset;
-                        eyeY2 = seg.y * this.fw + eyeOffset;
-                        break;
-                    case 'down':
-                        eyeX1 = seg.x * this.fw + eyeOffset;
-                        eyeY1 = seg.y * this.fw + this.fw - eyeOffset;
-                        eyeX2 = seg.x * this.fw + this.fw - eyeOffset;
-                        eyeY2 = seg.y * this.fw + this.fw - eyeOffset;
-                        break;
-                }
-                
-                this.ctx.beginPath();
-                this.ctx.arc(eyeX1, eyeY1, eyeSize, 0, Math.PI * 2);
-                this.ctx.arc(eyeX2, eyeY2, eyeSize, 0, Math.PI * 2);
-                this.ctx.fill();
-                
-                // 绘制蛇眼黑色部分
-                this.ctx.fillStyle = 'black';
-                this.ctx.beginPath();
-                this.ctx.arc(eyeX1, eyeY1, eyeSize/2, 0, Math.PI * 2);
-                this.ctx.arc(eyeX2, eyeY2, eyeSize/2, 0, Math.PI * 2);
-                this.ctx.fill();
-            } else {
-                // 蛇身渐变色
-                const alpha = 1 - (i / this.she.length) * 0.6;
-                this.drawRect(seg.x, seg.y, `rgba(76, 175, 80, ${alpha})`);
-            }
-        });
+        // 绘制蛇身
+        for (let i = 1; i < this.she.length; i++) {
+            this.drawRect(this.she[i].x, this.she[i].y, '#4CAF50');
+        }
+        // 绘制蛇头
+        this.drawRect(this.she[0].x, this.she[0].y, '#2E7D32');
     }
 
-    // 画食
+    // 绘制食物
     drawFood() {
-        const x = this.shi.x * this.fw + this.fw/2 - 1;
-        const y = this.shi.y * this.fw + this.fw/2 - 1;
-        const radius = this.fw/2 - 2;
-        
-        // 绘制光晕
-        const gradient = this.ctx.createRadialGradient(x, y, 0, x, y, radius);
-        gradient.addColorStop(0, '#ff8a80');
-        gradient.addColorStop(1, '#ff5252');
-        
-        this.ctx.fillStyle = gradient;
-        this.ctx.beginPath();
-        this.ctx.arc(x, y, radius, 0, Math.PI * 2);
-        this.ctx.fill();
-        
-        // 绘制高光
-        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-        this.ctx.beginPath();
-        this.ctx.arc(x - radius/3, y - radius/3, radius/4, 0, Math.PI * 2);
-        this.ctx.fill();
+        this.drawRect(this.shi.x, this.shi.y, '#FF5252');
     }
 
-    // 生成食
+    // 创建食物
     createFood() {
         let food;
         do {
@@ -220,236 +136,257 @@ class SheGame {
                 x: Math.floor(Math.random() * (this.hb.width / this.fw)),
                 y: Math.floor(Math.random() * (this.hb.height / this.fw))
             };
-        } while (this.she.some(seg => seg.x === food.x && seg.y === food.y));
+        } while (this.isOnSnake(food));
         return food;
     }
 
-    // 移动
-    async move() {
-        if (this.currentState !== this.state.PLAYING) return;
+    // 检查位置是否在蛇身上
+    isOnSnake(pos) {
+        return this.she.some(segment => segment.x === pos.x && segment.y === pos.y);
+    }
 
-        const head = {...this.she[0]};
-        switch(this.fx) {
-            case 'up': head.y--; break;
-            case 'down': head.y++; break;
-            case 'left': head.x--; break;
-            case 'right': head.x++; break;
+    // 移动蛇
+    moveSnake() {
+        // 如果有待行方向且不会导致反向，则更新方向
+        if (this.df && (
+            (this.fx === 'left' && this.df !== 'right') ||
+            (this.fx === 'right' && this.df !== 'left') ||
+            (this.fx === 'up' && this.df !== 'down') ||
+            (this.fx === 'down' && this.df !== 'up')
+        )) {
+            this.fx = this.df;
+            this.df = 0;
         }
 
-        // 判断是否游戏结束
-        if (this.isGameOver(head)) {
-            this.currentState = this.state.OVER;
-            await this.gameOverAnimation();
+        // 根据方向计算新的头部位置
+        const head = {x: this.she[0].x, y: this.she[0].y};
+        switch(this.fx) {
+            case 'right': head.x++; break;
+            case 'left': head.x--; break;
+            case 'up': head.y--; break;
+            case 'down': head.y++; break;
+        }
+
+        // 检查是否撞墙
+        if (head.x < 0 || head.x >= this.hb.width / this.fw ||
+            head.y < 0 || head.y >= this.hb.height / this.fw) {
+            this.gameOver();
             return;
         }
 
-        // 判断是否吃到食物
+        // 检查是否撞到自己
+        if (this.isOnSnake(head)) {
+            this.gameOver();
+            return;
+        }
+
+        // 在头部插入新位置
+        this.she.unshift(head);
+
+        // 检查是否吃到食物
         if (head.x === this.shi.x && head.y === this.shi.y) {
-            this.she.unshift(head);  // 先添加新头
-            this.shi = this.createFood();
-            this.df += 10;
-            document.getElementById('score').textContent = `得分：${this.df}`;
-            
-            // 播放吃食音效
+            // 播放吃食物音效
             this.soundManager.play('eat');
-            
-            // 设置新速度
-            const baseSpeed = 150;
-            const minSpeed = 50;
-            const speedReduction = this.she.length * 0.5;
-            this.speed = Math.max(minSpeed, baseSpeed - speedReduction);
-            
-            // 重启游戏循环以应用新速度
-            this.start();
+            // 更新分数
+            document.getElementById('score').textContent = '得分：' + (this.she.length - 3);
+            // 创建新食物
+            this.shi = this.createFood();
         } else {
-            this.she.pop();  // 删除尾部
-            this.she.unshift(head);  // 添加新头
+            // 如果没有吃到食物，删除尾部
+            this.she.pop();
         }
     }
 
-    // 判断游戏结束
-    isGameOver(head) {
-        const isOver = head.x < 0 || 
-               head.x >= this.hb.width / this.fw ||
-               head.y < 0 || 
-               head.y >= this.hb.height / this.fw ||
-               this.she.some(seg => seg.x === head.x && seg.y === head.y);
+    // 游戏主循环
+    gameLoop() {
+        if (this.currentState !== this.state.PLAYING) return;
+
+        this.moveSnake();
         
-        if (isOver) {
-            // 播放撞墙音效
-            this.soundManager.play('crash');
-        }
-        
-        return isOver;
-    }
-
-    // 游戏结束动画
-    async gameOverAnimation() {
-        // 闪烁效果
-        for(let i = 0; i < 3; i++) {
-            this.ctx.save();
-            this.ctx.fillStyle = 'rgba(255, 0, 0, 0.2)';
-            this.ctx.fillRect(0, 0, this.hb.width, this.hb.height);
-            this.ctx.restore();
-            await new Promise(resolve => setTimeout(resolve, 200));
-            this.clear();
-            this.drawSnake();
-            this.drawFood();
-            await new Promise(resolve => setTimeout(resolve, 200));
-        }
-
-        // 显示游戏结束文字
-        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-        this.ctx.fillRect(0, 0, this.hb.width, this.hb.height);
-        
-        this.ctx.font = '36px 楷体';
-        this.ctx.fillStyle = 'white';
-        this.ctx.textAlign = 'center';
-        this.ctx.fillText('游戏结束', this.hb.width/2, this.hb.height/2 - 30);
-        
-        this.ctx.font = '24px 楷体';
-        this.ctx.fillText(`得分：${this.df}`, this.hb.width/2, this.hb.height/2 + 20);
-        
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        this.reset();
-    }
-
-    // 重置游戏
-    reset() {
-        this.she = [{x: 3, y: 1}, {x: 2, y: 1}, {x: 1, y: 1}];
-        this.fx = 'right';
-        this.df = 0;
-        this.speed = 150;
-        this.shi = this.createFood();
-        this.currentState = this.state.READY;
-        document.getElementById('score').textContent = '得分：0';
-        this.soundManager.stopAll();
-        this.showStartScreen();
-    }
-
-    // 绑定事件
-    bindEvents() {
-        // 键盘控制
-        document.addEventListener('keydown', (e) => {
-            const keyMap = {
-                'ArrowUp': 'up',
-                'ArrowDown': 'down',
-                'ArrowLeft': 'left',
-                'ArrowRight': 'right',
-                ' ': 'space'
-            };
-            
-            const key = keyMap[e.key];
-            if (!key) return;
-
-            if (key === 'space') {
-                switch (this.currentState) {
-                    case this.state.READY:
-                        this.currentState = this.state.PLAYING;
-                        this.start();
-                        break;
-                    case this.state.PLAYING:
-                        this.currentState = this.state.PAUSED;
-                        this.showPauseScreen();
-                        break;
-                    case this.state.PAUSED:
-                        this.currentState = this.state.PLAYING;
-                        break;
-                }
-                return;
-            }
-            
-            if (this.currentState === this.state.PLAYING) {
-                const opposites = {
-                    'up': 'down',
-                    'down': 'up',
-                    'left': 'right',
-                    'right': 'left'
-                };
-                
-                if (opposites[key] !== this.fx) {
-                    this.fx = key;
-                }
-            }
-        });
-
-        // 触摸滑动控制
-        let touchStartX = 0;
-        let touchStartY = 0;
-        this.hb.addEventListener('touchstart', (e) => {
-            touchStartX = e.touches[0].clientX;
-            touchStartY = e.touches[0].clientY;
-        });
-
-        this.hb.addEventListener('touchmove', (e) => {
-            e.preventDefault(); // 防止页面滚动
-        }, { passive: false });
-
-        this.hb.addEventListener('touchend', (e) => {
-            if (this.currentState === this.state.READY) {
-                this.currentState = this.state.PLAYING;
-                this.start();
-                return;
-            }
-
-            if (this.currentState !== this.state.PLAYING) return;
-
-            const touchEndX = e.changedTouches[0].clientX;
-            const touchEndY = e.changedTouches[0].clientY;
-            const dx = touchEndX - touchStartX;
-            const dy = touchEndY - touchStartY;
-
-            // 判断滑动方向
-            if (Math.abs(dx) > Math.abs(dy)) {
-                // 水平滑动
-                if (dx > 0 && this.fx !== 'left') {
-                    this.fx = 'right';
-                } else if (dx < 0 && this.fx !== 'right') {
-                    this.fx = 'left';
-                }
-            } else {
-                // 垂直滑动
-                if (dy > 0 && this.fx !== 'up') {
-                    this.fx = 'down';
-                } else if (dy < 0 && this.fx !== 'down') {
-                    this.fx = 'up';
-                }
-            }
-        });
-
-        // 双击暂停
-        this.hb.addEventListener('dblclick', () => {
-            if (this.currentState === this.state.PLAYING) {
-                this.currentState = this.state.PAUSED;
-                this.showPauseScreen();
-            } else if (this.currentState === this.state.PAUSED) {
-                this.currentState = this.state.PLAYING;
-            }
-        });
-    }
-
-    // 游戏循环
-    async update() {
+        // 如果游戏未结束，则继续绘制
         if (this.currentState === this.state.PLAYING) {
-            this.clear();
-            await this.move();
-            this.drawFood();
-            this.drawSnake();
+            requestAnimationFrame(() => {
+                this.clear();
+                this.drawFood();
+                this.drawSnake();
+                
+                // 继续下一帧
+                setTimeout(() => this.gameLoop(), this.speed);
+            });
         }
     }
 
     // 开始游戏
-    start() {
-        if (this._interval) {
-            clearInterval(this._interval);
+    startGame() {
+        if (this.currentState === this.state.READY || this.currentState === this.state.OVER) {
+            // 重置游戏状态
+            this.she = [{x: 3, y: 1}, {x: 2, y: 1}, {x: 1, y: 1}];
+            this.fx = 'right';
+            this.df = 0;
+            this.shi = this.createFood();
+            document.getElementById('score').textContent = '得分：0';
+            
+            // 清除画布并绘制初始状态
+            this.clear();
+            this.drawFood();
+            this.drawSnake();
+            
+            // 播放开始音效
+            this.soundManager.play('start');
+            
+            // 更新游戏状态并开始游戏循环
+            this.currentState = this.state.PLAYING;
+            this.gameLoop();
         }
-        this.update();
-        this._interval = setInterval(() => {
-            this.update();
-            // 播放移动音效
+    }
+
+    // 暂停游戏
+    pauseGame() {
+        if (this.currentState === this.state.PLAYING) {
+            this.currentState = this.state.PAUSED;
+            this.showPauseScreen();
+            // 播放暂停音效
+            this.soundManager.play('pause');
+        } else if (this.currentState === this.state.PAUSED) {
+            this.currentState = this.state.PLAYING;
+            this.gameLoop();
+            // 播放开始音效
+            this.soundManager.play('start');
+        }
+    }
+
+    // 游戏结束
+    gameOver() {
+        this.currentState = this.state.OVER;
+        
+        // 播放撞击音效
+        this.soundManager.play('crash');
+        
+        // 绘制游戏结束画面
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+        this.ctx.fillRect(0, 0, this.hb.width, this.hb.height);
+        
+        this.ctx.font = '48px 楷体';
+        this.ctx.fillStyle = '#FF5252';
+        this.ctx.textAlign = 'center';
+        this.ctx.fillText('游戏结束', this.hb.width/2, this.hb.height/2 - 50);
+        
+        this.ctx.font = '24px 楷体';
+        this.ctx.fillStyle = 'white';
+        this.ctx.fillText(
+            '最终得分：' + (this.she.length - 3),
+            this.hb.width/2,
+            this.hb.height/2 + 20
+        );
+        
+        if (window.innerWidth <= 600) {
+            this.ctx.fillText('点击重新开始', this.hb.width/2, this.hb.height/2 + 60);
+        } else {
+            this.ctx.fillText('按空格键重新开始', this.hb.width/2, this.hb.height/2 + 60);
+        }
+    }
+
+    // 处理按键事件
+    handleKeyPress(e) {
+        // 处理方向键
+        const key = {
+            'ArrowLeft': 'left',
+            'ArrowRight': 'right',
+            'ArrowUp': 'up',
+            'ArrowDown': 'down'
+        }[e.key];
+
+        if (key) {
+            e.preventDefault();
+            // 设置待行方向
             if (this.currentState === this.state.PLAYING) {
-                this.soundManager.play('move');
+                this.df = key;
             }
-        }, this.speed);
+        }
+
+        // 处理空格键
+        if (e.code === 'Space') {
+            e.preventDefault();
+            if (this.currentState === this.state.READY || this.currentState === this.state.OVER) {
+                this.startGame();
+            } else {
+                this.pauseGame();
+            }
+        }
+    }
+
+    // 处理点击事件
+    handleClick() {
+        if (this.currentState === this.state.READY || this.currentState === this.state.OVER) {
+            this.startGame();
+        } else if (this.currentState === this.state.PLAYING || this.currentState === this.state.PAUSED) {
+            this.pauseGame();
+        }
+    }
+
+    // 绑定事件
+    bindEvents() {
+        // 键盘事件
+        document.addEventListener('keydown', (e) => {
+            this.handleKeyPress(e);
+        });
+        
+        // 画布点击事件
+        this.hb.addEventListener('click', () => {
+            this.handleClick();
+        });
+
+        // 触控事件
+        let touchStartX = 0;
+        let touchStartY = 0;
+        
+        this.hb.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        });
+        
+        this.hb.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+        });
+        
+        this.hb.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            const touchEndX = e.changedTouches[0].clientX;
+            const touchEndY = e.changedTouches[0].clientY;
+            
+            const deltaX = touchEndX - touchStartX;
+            const deltaY = touchEndY - touchStartY;
+            
+            // 判断滑动方向
+            if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                // 水平滑动
+                if (deltaX > 0 && this.fx !== 'left') {
+                    this.df = 'right';
+                } else if (deltaX < 0 && this.fx !== 'right') {
+                    this.df = 'left';
+                }
+            } else {
+                // 垂直滑动
+                if (deltaY > 0 && this.fx !== 'up') {
+                    this.df = 'down';
+                } else if (deltaY < 0 && this.fx !== 'down') {
+                    this.df = 'up';
+                }
+            }
+            
+            // 如果在准备状态，则开始游戏
+            if (this.currentState === this.state.READY) {
+                this.startGame();
+            }
+        });
+
+        // 防止页面滚动
+        document.body.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+        }, { passive: false });
     }
 }
+
+// 创建游戏实例
+const game = new SheGame();

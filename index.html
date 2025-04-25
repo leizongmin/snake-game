@@ -97,6 +97,18 @@
             margin: 5px 0;
         }
 
+        .mobile-tip {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-tip {
+                display: block;
+                color: var(--primary-color);
+                font-weight: bold;
+            }
+        }
+
         .key {
             display: inline-block;
             padding: 3px 8px;
@@ -193,6 +205,11 @@
         <h1 class="title">贪食蛇戏</h1>
         <div id="score">得分：0</div>
         <canvas id="gameCanvas" width="400" height="400"></canvas>
+        <div class="controls">
+            <p>方向键控制移动</p>
+            <p>空格键暂停/继续</p>
+            <p class="mobile-tip">手机端可滑动屏幕控制方向</p>
+        </div>
     </div>
     <script src="sounds.js"></script>
     <script src="game.js"></script>
