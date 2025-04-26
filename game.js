@@ -453,10 +453,12 @@ class SheGame {
   // 处理点击事件
   handleClick(e) {
     if (this.currentState === this.state.READY) {
-      // 获取点击坐标
+      // 获取点击坐标，并考虑设备像素比
       const rect = this.hb.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
+      const scaleX = this.hb.width / rect.width;
+      const scaleY = this.hb.height / rect.height;
+      const x = (e.clientX - rect.left) * scaleX;
+      const y = (e.clientY - rect.top) * scaleY;
 
       // 检查是否点击了模式选项
       let clickedMode = null;
@@ -475,6 +477,10 @@ class SheGame {
       if (clickedMode) {
         this.currentMode = clickedMode;
         this.showStartScreen();
+        // 如果点击的是当前选中的模式，直接开始游戏
+        if (clickedMode === this.currentMode) {
+          this.startGame();
+        }
         return;
       }
 
@@ -532,29 +538,75 @@ class SheGame {
       const touchEndX = e.changedTouches[0].clientX;
       const touchEndY = e.changedTouches[0].clientY;
 
-      const deltaX = touchEndX - touchStartX;
-      const deltaY = touchEndY - touchStartY;
+      // 如果在准备状态，处理模式选择
+      if (this.currentState === this.state.READY) {
+        const rect = this.hb.getBoundingClientRect();
+        const scaleX = this.hb.width / rect.width;
+        const scaleY = this.hb.height / rect.height;
+        const x = (touchEndX - rect.left) * scaleX;
+        const y = (touchEndY - rect.top) * scaleY;
 
-      // 判断滑动方向
-      if (Math.abs(deltaX) > Math.abs(deltaY)) {
-        // 水平滑动
-        if (deltaX > 0 && this.fx !== 'left') {
-          this.df = 'right';
-        } else if (deltaX < 0 && this.fx !== 'right') {
-          this.df = 'left';
+        // 检查是否点击了模式选项
+        let clickedMode = null;
+        Object.values(this.modes).forEach((mode, index) => {
+          const buttonY = this.hb.height / 2 - 40 + index * 40;
+          if (
+            x >= this.hb.width / 2 - 80 &&
+            x <= this.hb.width / 2 + 80 &&
+            y >= buttonY - 25 &&
+            y <= buttonY + 10
+          ) {
+            clickedMode = mode;
+          }
+        });
+
+        if (clickedMode) {
+          this.currentMode = clickedMode;
+          this.showStartScreen();
+          // 如果在触摸屏设备上，直接开始游戏
+          if (window.innerWidth <= 600) {
+            this.startGame();
+          }
+          return;
         }
-      } else {
-        // 垂直滑动
-        if (deltaY > 0 && this.fx !== 'up') {
-          this.df = 'down';
-        } else if (deltaY < 0 && this.fx !== 'down') {
-          this.df = 'up';
+
+        // 如果点击了当前选中的模式，开始游戏
+        const selectedY =
+          this.hb.height / 2 -
+          40 +
+          Object.values(this.modes).indexOf(this.currentMode) * 40;
+        if (
+          x >= this.hb.width / 2 - 80 &&
+          x <= this.hb.width / 2 + 80 &&
+          y >= selectedY - 25 &&
+          y <= selectedY + 10
+        ) {
+          this.startGame();
+          return;
         }
       }
 
-      // 如果在准备状态，则开始游戏
-      if (this.currentState === this.state.READY) {
-        this.startGame();
+      // 如果在游戏中，处理方向控制
+      if (this.currentState === this.state.PLAYING) {
+        const deltaX = touchEndX - touchStartX;
+        const deltaY = touchEndY - touchStartY;
+
+        // 判断滑动方向
+        if (Math.abs(deltaX) > Math.abs(deltaY)) {
+          // 水平滑动
+          if (deltaX > 0 && this.fx !== 'left') {
+            this.df = 'right';
+          } else if (deltaX < 0 && this.fx !== 'right') {
+            this.df = 'left';
+          }
+        } else {
+          // 垂直滑动
+          if (deltaY > 0 && this.fx !== 'up') {
+            this.df = 'down';
+          } else if (deltaY < 0 && this.fx !== 'down') {
+            this.df = 'up';
+          }
+        }
       }
     });
 
