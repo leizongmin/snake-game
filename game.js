@@ -3,8 +3,14 @@ class SheGame {
   constructor() {
     // 画布相关
     this.hb = document.getElementById('gameCanvas');
+    // 计算合适的画布尺寸和方块大小
+    const screenHeight = window.innerHeight;
+    const maxHeight = screenHeight * 0.8; // 画布高度占屏幕80%
+    const aspectRatio = 2/3; // 保持宽高比
+    this.hb.height = Math.min(600, maxHeight);
+    this.hb.width = this.hb.height * aspectRatio;
     this.ctx = this.hb.getContext('2d');
-    this.fw = 20;
+    this.fw = Math.floor(this.hb.width / 20); // 动态计算方块大小
 
     // 游戏状态
     this.state = {
