@@ -610,6 +610,129 @@ class SoundManager {
 
       // 经典游戏音乐集合
       const musicCollection = [
+        // 1. 仙剑奇侠传主题
+        {
+          name: '仙剑奇侠传',
+          melody: [
+            { note: 392, duration: 0.3 }, // G4
+            { note: 440, duration: 0.3 }, // A4
+            { note: 523, duration: 0.4 }, // C5
+            { note: 440, duration: 0.2 }, // A4
+            { note: 392, duration: 0.4 }, // G4
+            { note: 349, duration: 0.3 }, // F4
+            { note: 392, duration: 0.5 }, // G4
+            { note: 0, duration: 0.2 }, // 休止符
+            { note: 349, duration: 0.3 }, // F4
+            { note: 392, duration: 0.3 }, // G4
+            { note: 440, duration: 0.4 }, // A4
+            { note: 392, duration: 0.2 }, // G4
+            { note: 349, duration: 0.4 }, // F4
+            { note: 330, duration: 0.3 }, // E4
+            { note: 349, duration: 0.5 }, // F4
+          ],
+          bass: [
+            { note: 98, duration: 0.4 }, // G2
+            { note: 110, duration: 0.4 }, // A2
+            { note: 130.8, duration: 0.4 }, // C3
+            { note: 98, duration: 0.4 }, // G2
+            { note: 87.3, duration: 0.4 }, // F2
+            { note: 98, duration: 0.4 }, // G2
+            { note: 110, duration: 0.4 }, // A2
+            { note: 98, duration: 0.4 }, // G2
+          ],
+          rhythm: [
+            { note: 196, duration: 0.1, gain: 0.1 }, // G3
+            { note: 0, duration: 0.1, gain: 0 },
+            { note: 196, duration: 0.1, gain: 0.05 }, // G3
+            { note: 0, duration: 0.1, gain: 0 },
+            { note: 220, duration: 0.1, gain: 0.1 }, // A3
+            { note: 0, duration: 0.1, gain: 0 },
+            { note: 196, duration: 0.1, gain: 0.05 }, // G3
+            { note: 0, duration: 0.1, gain: 0 },
+          ],
+        },
+        // 2. 金庸群侠传主题
+        {
+          name: '金庸群侠传',
+          melody: [
+            { note: 523, duration: 0.2 }, // C5
+            { note: 587, duration: 0.2 }, // D5
+            { note: 659, duration: 0.4 }, // E5
+            { note: 587, duration: 0.2 }, // D5
+            { note: 523, duration: 0.2 }, // C5
+            { note: 494, duration: 0.4 }, // B4
+            { note: 440, duration: 0.6 }, // A4
+            { note: 0, duration: 0.2 }, // 休止符
+            { note: 392, duration: 0.2 }, // G4
+            { note: 440, duration: 0.2 }, // A4
+            { note: 494, duration: 0.4 }, // B4
+            { note: 440, duration: 0.2 }, // A4
+            { note: 392, duration: 0.4 }, // G4
+            { note: 349, duration: 0.4 }, // F4
+            { note: 392, duration: 0.6 }, // G4
+          ],
+          bass: [
+            { note: 130.8, duration: 0.4 }, // C3
+            { note: 146.8, duration: 0.4 }, // D3
+            { note: 164.8, duration: 0.4 }, // E3
+            { note: 130.8, duration: 0.4 }, // C3
+            { note: 123.5, duration: 0.4 }, // B2
+            { note: 110, duration: 0.4 }, // A2
+            { note: 98, duration: 0.4 }, // G2
+            { note: 110, duration: 0.4 }, // A2
+          ],
+          rhythm: [
+            { note: 261.6, duration: 0.1, gain: 0.1 }, // C4
+            { note: 0, duration: 0.1, gain: 0 },
+            { note: 261.6, duration: 0.1, gain: 0.05 }, // C4
+            { note: 0, duration: 0.1, gain: 0 },
+            { note: 293.7, duration: 0.1, gain: 0.1 }, // D4
+            { note: 0, duration: 0.1, gain: 0 },
+            { note: 261.6, duration: 0.1, gain: 0.05 }, // C4
+            { note: 0, duration: 0.1, gain: 0 },
+          ],
+        },
+        // 3. 大话西游主题
+        {
+          name: '大话西游',
+          melody: [
+            { note: 392, duration: 0.3 }, // G4
+            { note: 440, duration: 0.3 }, // A4
+            { note: 494, duration: 0.4 }, // B4
+            { note: 440, duration: 0.2 }, // A4
+            { note: 392, duration: 0.4 }, // G4
+            { note: 349, duration: 0.3 }, // F4
+            { note: 392, duration: 0.5 }, // G4
+            { note: 0, duration: 0.2 }, // 休止符
+            { note: 440, duration: 0.3 }, // A4
+            { note: 494, duration: 0.3 }, // B4
+            { note: 523, duration: 0.4 }, // C5
+            { note: 494, duration: 0.2 }, // B4
+            { note: 440, duration: 0.4 }, // A4
+            { note: 392, duration: 0.3 }, // G4
+            { note: 440, duration: 0.5 }, // A4
+          ],
+          bass: [
+            { note: 98, duration: 0.4 }, // G2
+            { note: 110, duration: 0.4 }, // A2
+            { note: 123.5, duration: 0.4 }, // B2
+            { note: 110, duration: 0.4 }, // A2
+            { note: 98, duration: 0.4 }, // G2
+            { note: 87.3, duration: 0.4 }, // F2
+            { note: 98, duration: 0.4 }, // G2
+            { note: 110, duration: 0.4 }, // A2
+          ],
+          rhythm: [
+            { note: 196, duration: 0.1, gain: 0.1 }, // G3
+            { note: 0, duration: 0.1, gain: 0 },
+            { note: 196, duration: 0.1, gain: 0.05 }, // G3
+            { note: 0, duration: 0.1, gain: 0 },
+            { note: 220, duration: 0.1, gain: 0.1 }, // A3
+            { note: 0, duration: 0.1, gain: 0 },
+            { note: 196, duration: 0.1, gain: 0.05 }, // G3
+            { note: 0, duration: 0.1, gain: 0 },
+          ],
+        },
         // 1. 原始简单旋律
         {
           name: '简单旋律',
@@ -833,133 +956,6 @@ class SoundManager {
             { note: 247, duration: 0.1, gain: 0.05 }, // B3
             { note: 0, duration: 0.1, gain: 0 },
             { note: 196, duration: 0.1, gain: 0.1 }, // G3
-            { note: 0, duration: 0.1, gain: 0 },
-            { note: 196, duration: 0.1, gain: 0.05 }, // G3
-            { note: 0, duration: 0.1, gain: 0 },
-          ],
-        },
-        // 6. 仙剑奇侠传主题曲
-        {
-          name: '仙剑奇侠传',
-          melody: [
-            { note: 392, duration: 0.3 }, // G4
-            { note: 440, duration: 0.15 }, // A4
-            { note: 392, duration: 0.15 }, // G4
-            { note: 330, duration: 0.3 }, // E4
-            { note: 294, duration: 0.3 }, // D4
-            { note: 330, duration: 0.3 }, // E4
-            { note: 349, duration: 0.3 }, // F4
-            { note: 392, duration: 0.6 }, // G4
-            { note: 0, duration: 0.15 },
-            { note: 392, duration: 0.3 }, // G4
-            { note: 440, duration: 0.15 }, // A4
-            { note: 392, duration: 0.15 }, // G4
-            { note: 523, duration: 0.3 }, // C5
-            { note: 494, duration: 0.3 }, // B4
-            { note: 440, duration: 0.3 }, // A4
-            { note: 392, duration: 0.3 }, // G4
-            { note: 330, duration: 0.6 }, // E4
-          ],
-          bass: [
-            { note: 98, duration: 0.6 }, // G2
-            { note: 82.4, duration: 0.6 }, // E2
-            { note: 87.3, duration: 0.6 }, // F2
-            { note: 98, duration: 0.6 }, // G2
-            { note: 98, duration: 0.6 }, // G2
-            { note: 130.8, duration: 0.6 }, // C3
-            { note: 110, duration: 0.6 }, // A2
-            { note: 82.4, duration: 0.6 }, // E2
-          ],
-          rhythm: [
-            { note: 196, duration: 0.1, gain: 0.1 }, // G3
-            { note: 0, duration: 0.1, gain: 0 },
-            { note: 196, duration: 0.1, gain: 0.05 }, // G3
-            { note: 0, duration: 0.1, gain: 0 },
-            { note: 165, duration: 0.1, gain: 0.1 }, // E3
-            { note: 0, duration: 0.1, gain: 0 },
-            { note: 196, duration: 0.1, gain: 0.05 }, // G3
-            { note: 0, duration: 0.1, gain: 0 },
-          ],
-        },
-        // 7. 金庸群侠传主题
-        {
-          name: '金庸群侠传',
-          melody: [
-            { note: 262, duration: 0.2 }, // C4
-            { note: 294, duration: 0.2 }, // D4
-            { note: 330, duration: 0.4 }, // E4
-            { note: 0, duration: 0.1 },
-            { note: 330, duration: 0.2 }, // E4
-            { note: 349, duration: 0.2 }, // F4
-            { note: 392, duration: 0.4 }, // G4
-            { note: 0, duration: 0.1 },
-            { note: 392, duration: 0.1 }, // G4
-            { note: 440, duration: 0.1 }, // A4
-            { note: 392, duration: 0.1 }, // G4
-            { note: 349, duration: 0.1 }, // F4
-            { note: 330, duration: 0.4 }, // E4
-            { note: 294, duration: 0.2 }, // D4
-            { note: 262, duration: 0.4 }, // C4
-          ],
-          bass: [
-            { note: 65.4, duration: 0.4 }, // C2
-            { note: 82.4, duration: 0.4 }, // E2
-            { note: 65.4, duration: 0.4 }, // C2
-            { note: 98, duration: 0.4 }, // G2
-            { note: 65.4, duration: 0.4 }, // C2
-            { note: 82.4, duration: 0.4 }, // E2
-            { note: 73.4, duration: 0.4 }, // D2
-            { note: 65.4, duration: 0.4 }, // C2
-          ],
-          rhythm: [
-            { note: 131, duration: 0.1, gain: 0.1 }, // C3
-            { note: 0, duration: 0.1, gain: 0 },
-            { note: 131, duration: 0.1, gain: 0.05 }, // C3
-            { note: 0, duration: 0.1, gain: 0 },
-            { note: 196, duration: 0.1, gain: 0.1 }, // G3
-            { note: 0, duration: 0.1, gain: 0 },
-            { note: 131, duration: 0.1, gain: 0.05 }, // C3
-            { note: 0, duration: 0.1, gain: 0 },
-          ],
-        },
-        // 8. 大富翁主题
-        {
-          name: '大富翁',
-          melody: [
-            { note: 392, duration: 0.15 }, // G4
-            { note: 440, duration: 0.15 }, // A4
-            { note: 494, duration: 0.3 }, // B4
-            { note: 0, duration: 0.1 },
-            { note: 440, duration: 0.15 }, // A4
-            { note: 494, duration: 0.15 }, // B4
-            { note: 523, duration: 0.3 }, // C5
-            { note: 0, duration: 0.1 },
-            { note: 494, duration: 0.15 }, // B4
-            { note: 440, duration: 0.15 }, // A4
-            { note: 392, duration: 0.3 }, // G4
-            { note: 0, duration: 0.1 },
-            { note: 349, duration: 0.15 }, // F4
-            { note: 392, duration: 0.15 }, // G4
-            { note: 440, duration: 0.3 }, // A4
-            { note: 349, duration: 0.3 }, // F4
-            { note: 294, duration: 0.6 }, // D4
-          ],
-          bass: [
-            { note: 98, duration: 0.3 }, // G2
-            { note: 110, duration: 0.3 }, // A2
-            { note: 123.5, duration: 0.3 }, // B2
-            { note: 130.8, duration: 0.3 }, // C3
-            { note: 98, duration: 0.3 }, // G2
-            { note: 87.3, duration: 0.3 }, // F2
-            { note: 110, duration: 0.3 }, // A2
-            { note: 73.4, duration: 0.3 }, // D2
-          ],
-          rhythm: [
-            { note: 196, duration: 0.1, gain: 0.1 }, // G3
-            { note: 0, duration: 0.1, gain: 0 },
-            { note: 196, duration: 0.1, gain: 0.05 }, // G3
-            { note: 0, duration: 0.1, gain: 0 },
-            { note: 220, duration: 0.1, gain: 0.1 }, // A3
             { note: 0, duration: 0.1, gain: 0 },
             { note: 196, duration: 0.1, gain: 0.05 }, // G3
             { note: 0, duration: 0.1, gain: 0 },
