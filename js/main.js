@@ -48,6 +48,9 @@ class Game {
     // 播放背景音乐
     this.soundManager.playBgm();
 
+    // 食物计数器 - 用于障碍物更新
+    this.foodCounter = 0;
+
     // 显示开始界面
     this.gameState.init();
 
@@ -60,6 +63,9 @@ class Game {
       // 重置游戏对象
       const mode = this.gameState.getMode();
       this.gameObjects.reset(this.snake, mode.zhangCount);
+
+      // 重置食物计数器
+      this.foodCounter = 0;
 
       // 确保背景音乐播放
       if (!this.soundManager.bgmPlaying) {
@@ -118,6 +124,98 @@ class Game {
           this.gameState.updateScore();
           // 播放音效
           this.soundManager.play('eat');
+
+          // 增加食物计数
+          this.foodCounter++;
+
+          // 每吃5个食物，障碍物位置变化一次
+          if (this.foodCounter >= 5) {
+            // 重置计数器
+            this.foodCounter = 0;
+
+            // 获取当前模式的障碍物数量
+            const mode = this.gameState.getMode();
+
+            // 重新生成障碍物
+            this.gameObjects.createObstacles(mode.zhangCount, snake);
+
+            // 更新传入的obstacles引用，确保游戏循环使用新的障碍物
+            obstacles.length = 0; // 清空原数组
+            const newObstacles = this.gameObjects.getObstacles();
+            newObstacles.forEach(obs => obstacles.push(obs)); // 填充新障碍物
+
+            console.log('障碍物已更新，新数量:', obstacles.length);
+
+            // 播放特殊音效提示障碍物已变化
+            this.soundManager.play('pause');
+
+            // 添加视觉提示，使障碍物变化更明显
+            // 闪烁效果：先清屏，然后绘制所有元素，再暂停一下
+            this.renderer.clear();
+
+            // 绘制新障碍物，使用明显的颜色
+            const originalDrawObstacles = this.renderer.drawObstacles;
+            this.renderer.drawObstacles = obstacles => {
+              // 临时修改障碍物绘制方法，使用橙色高亮
+              const originalDrawRect = this.renderer.drawRect;
+              this.renderer.drawRect = (x, y, color) => {
+                // 忽略传入的颜色，强制使用橙色
+                originalDrawRect.call(this.renderer, x, y, '#FFA500');
+              };
+
+              // 使用修改后的drawRect方法绘制障碍物
+              originalDrawObstacles.call(this.renderer, obstacles);
+
+              // 恢复原始drawRect方法
+              this.renderer.drawRect = originalDrawRect;
+            };
+
+            // 绘制带高亮的障碍物
+            this.renderer.drawObstacles(this.gameObjects.getObstacles());
+            this.renderer.drawFood(food);
+            this.renderer.drawSnake(snake);
+
+            // 恢复原始绘制函数
+            this.renderer.drawObstacles = originalDrawObstacles;
+
+            // 添加闪烁效果，使障碍物变化更明显
+            let flashCount = 0;
+            const maxFlashes = 3;
+            const flashInterval = setInterval(() => {
+              flashCount++;
+
+              if (flashCount <= maxFlashes) {
+                // 交替显示橙色和原色
+                if (flashCount % 2 === 1) {
+                  // 恢复原始绘制函数，显示原色
+                  this.renderer.drawObstacles = originalDrawObstacles;
+                  this.renderer.clear();
+                  this.renderer.drawObstacles(this.gameObjects.getObstacles());
+                  this.renderer.drawFood(food);
+                  this.renderer.drawSnake(snake);
+                } else {
+                  // 使用橙色高亮
+                  const tempDrawRect = this.renderer.drawRect;
+                  this.renderer.drawRect = (x, y, color) => {
+                    tempDrawRect.call(this.renderer, x, y, '#FFA500');
+                  };
+                  this.renderer.clear();
+                  originalDrawObstacles.call(this.renderer, this.gameObjects.getObstacles());
+                  this.renderer.drawRect = tempDrawRect;
+                  this.renderer.drawFood(food);
+                  this.renderer.drawSnake(snake);
+                }
+              } else {
+                // 闪烁结束，清除定时器
+                clearInterval(flashInterval);
+                // 确保最后使用原始绘制函数
+                this.renderer.drawObstacles = originalDrawObstacles;
+                // 在控制台输出提示
+                console.log('障碍物位置已更新！食物计数：', this.foodCounter);
+              }
+            }, 200); // 200毫秒间隔，产生明显闪烁效果
+          }
+
           // 生成新食物
           const newFood = this.gameObjects.createFood(snake);
           if (newFood) {
