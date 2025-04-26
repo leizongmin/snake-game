@@ -270,6 +270,11 @@ class Renderer {
       // 若snake未定义或segments为空，则不作绘制
       return;
     }
+
+    // 子曰：若处于无敌状态，则使蛇身闪烁
+    const alpha = snake.invincible ? Math.sin(Date.now() / 100) * 0.5 + 0.5 : 1;
+    this.ctx.globalAlpha = alpha;
+
     // 绘制蛇身
     for (let i = 1; i < snake.segments.length - 1; i++) {
       this.drawRect(snake.segments[i].x, snake.segments[i].y, '#4CAF50', 'default', snake);
@@ -281,6 +286,9 @@ class Renderer {
       const tail = snake.segments[snake.segments.length - 1];
       this.drawRect(tail.x, tail.y, '#4CAF50', 'tail', snake);
     }
+
+    // 子曰：恢复透明度
+    this.ctx.globalAlpha = 1;
   }
 
   // 绘制食物

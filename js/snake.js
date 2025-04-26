@@ -19,6 +19,11 @@ class Snake {
 
     // 子曰：初始生命值
     this.lives = 1;
+
+    // 子曰：无敌状态
+    this.invincible = false;
+    this.invincibleTimer = null;
+    this.invincibleDuration = 2000; // 无敌时间2秒
   }
 
   // 重置蛇
@@ -33,6 +38,13 @@ class Snake {
 
     // 子曰：重置生命值
     this.lives = 1;
+
+    // 子曰：重置无敌状态
+    this.invincible = false;
+    if (this.invincibleTimer) {
+      clearTimeout(this.invincibleTimer);
+      this.invincibleTimer = null;
+    }
   }
 
   // 获取蛇的长度
@@ -96,22 +108,37 @@ class Snake {
 
     // 子曰：检查是否撞墙
     if (head.x < 0 || head.x >= this.canvasWidth / this.blockSize || head.y < 0 || head.y >= this.canvasHeight / this.blockSize) {
-      this.lives--;
-      result.gameOver = this.lives <= 0;
+      if (!this.invincible) {
+        this.lives--;
+        result.gameOver = this.lives <= 0;
+        if (!result.gameOver) {
+          this.startInvincibility();
+        }
+      }
       return result;
     }
 
     // 子曰：检查是否撞到障碍物
     if (obstacles && obstacles.some(o => o.x === head.x && o.y === head.y)) {
-      this.lives--;
-      result.gameOver = this.lives <= 0;
+      if (!this.invincible) {
+        this.lives--;
+        result.gameOver = this.lives <= 0;
+        if (!result.gameOver) {
+          this.startInvincibility();
+        }
+      }
       return result;
     }
 
     // 子曰：检查是否撞到自己
     if (this.segments.some(segment => segment.x === head.x && segment.y === head.y)) {
-      this.lives--;
-      result.gameOver = this.lives <= 0;
+      if (!this.invincible) {
+        this.lives--;
+        result.gameOver = this.lives <= 0;
+        if (!result.gameOver) {
+          this.startInvincibility();
+        }
+      }
       return result;
     }
 
@@ -119,8 +146,8 @@ class Snake {
     const eatenFood = food.find(f => f.x === head.x && f.y === head.y);
     if (eatenFood) {
       result.ate = true;
-      // 子曰：若食用生命之果，则增加生命值
-      if (eatenFood.type === 'life') {
+      // 子曰：若食用生命之果，则增加生命值，不超十
+      if (eatenFood.type === 'life' && this.lives < 10) {
         this.lives++;
       }
     } else {
@@ -142,6 +169,18 @@ class Snake {
   // 检查位置是否在障碍物上
   isOnObstacle(pos, obstacles) {
     return obstacles.some(obstacle => obstacle.x === pos.x && obstacle.y === pos.y);
+  }
+
+  // 子曰：开启无敌状态
+  startInvincibility() {
+    this.invincible = true;
+    if (this.invincibleTimer) {
+      clearTimeout(this.invincibleTimer);
+    }
+    this.invincibleTimer = setTimeout(() => {
+      this.invincible = false;
+      this.invincibleTimer = null;
+    }, this.invincibleDuration);
   }
 }
 
