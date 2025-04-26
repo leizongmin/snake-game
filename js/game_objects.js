@@ -5,8 +5,8 @@ class GameObjects {
     this.canvasHeight = canvasHeight;
     this.blockSize = blockSize;
 
-    // 食物位置
-    this.food = { x: 0, y: 0 };
+    // 食物数组
+    this.foods = [];
 
     // 障碍物数组
     this.obstacles = [];
@@ -14,35 +14,42 @@ class GameObjects {
 
   // 创建食物
   createFood(snake) {
-    // 《论语·雍也》曰：“德不孤，必有邻。”
-    // 生成食物时，必先验旧食物是否已被蛇吞，未吞则不再生成新食物
-    // 若需新食物，则遍查蛇身与障碍，确保不重叠，且防止死循环
-    if (this.food && this.isOnSnake(this.food, snake) === false && (this.food.x !== 0 || this.food.y !== 0)) {
-      // 旧食物尚存，且未被蛇吞，毋庸再生
-      return this.food;
-    }
-    // 《论语·为政》曰：“为政以德，譬如北辰，居其所而众星共之。”
-    // 先遍历所有格子，排除蛇身与障碍，余者为可用
-    const maxX = this.canvasWidth / this.blockSize;
-    const maxY = this.canvasHeight / this.blockSize;
-    const available = [];
-    for (let x = 0; x < maxX; x++) {
-      for (let y = 0; y < maxY; y++) {
-        // 若该格不在蛇身且不在障碍物上，则可用
-        if (!this.isOnSnake({ x, y }, snake) && !this.isOnObstacle({ x, y })) {
-          available.push({ x, y });
+    // 子曰：清理已被蛇吞之食物
+    this.foods = this.foods.filter(food => !this.isOnSnake(food, snake));
+
+    // 子曰：计算所需食物数量
+    const targetFoodCount = Math.floor(Math.random() * 5) + 1;
+
+    // 子曰：若食物不足，则继续生成
+    while (this.foods.length < targetFoodCount) {
+      // 子曰：寻找可用之格子
+      const maxX = this.canvasWidth / this.blockSize;
+      const maxY = this.canvasHeight / this.blockSize;
+      const available = [];
+      for (let x = 0; x < maxX; x++) {
+        for (let y = 0; y < maxY; y++) {
+          // 子曰：若格子不在蛇身、障碍物及现有食物上，则可用
+          if (!this.isOnSnake({ x, y }, snake) && !this.isOnObstacle({ x, y }) && !this.foods.some(food => food.x === x && food.y === y)) {
+            available.push({ x, y });
+          }
         }
       }
+
+      // 子曰：若无可用格，则跳出循环
+      if (available.length === 0) {
+        break;
+      }
+
+      // 子曰：随机选取一格生成新食物
+      const idx = Math.floor(Math.random() * available.length);
+      const food = available[idx];
+      this.foods.push(food);
+
+      // 子曰：从可用格子中移除已用之格
+      available.splice(idx, 1);
     }
-    // 若无可用格，返回null
-    if (available.length === 0) {
-      return null;
-    }
-    // 随机选取一格为新食物
-    const idx = Math.floor(Math.random() * available.length);
-    const food = available[idx];
-    this.food = food;
-    return food;
+
+    return this.foods;
   }
 
   // 创建障碍物
@@ -66,7 +73,7 @@ class GameObjects {
       } while (
         this.isOnSnake(obstacle, snake) ||
         this.isOnObstacle(obstacle) ||
-        (obstacle.x === this.food.x && obstacle.y === this.food.y)
+        this.foods.some(food => food.x === obstacle.x && food.y === obstacle.y)
       );
       if (attempts <= maxAttempts) {
         this.obstacles.push(obstacle);
@@ -87,7 +94,7 @@ class GameObjects {
 
   // 获取当前食物位置
   getFood() {
-    return this.food;
+    return this.foods;
   }
 
   // 获取当前障碍物
@@ -97,6 +104,7 @@ class GameObjects {
 
   // 重置游戏对象
   reset(snake, obstacleCount) {
+    this.foods = [];
     this.createFood(snake);
     this.createObstacles(obstacleCount, snake);
   }

@@ -243,8 +243,11 @@ class Renderer {
   }
 
   // 绘制食物
-  drawFood(food) {
-    this.drawRect(food.x, food.y, null, 'food');
+  drawFood(foods) {
+    // 子曰：遍历食物数组，逐一绘制
+    foods.forEach(food => {
+      this.drawRect(food.x, food.y, null, 'food');
+    });
   }
 
   // 绘制障碍物

@@ -42,8 +42,10 @@ class Game {
 
   // 初始化游戏
   init() {
-    // 创建初始食物和障碍物
-    this.gameObjects.createFood(this.snake);
+    // 子曰：创建初始食物
+    for (let i = 0; i < 3; i++) {
+      this.gameObjects.createFood(this.snake);
+    }
 
     // 播放背景音乐
     this.soundManager.playBgm();
@@ -118,12 +120,17 @@ class Game {
           return;
         }
 
-        // 若蛇吃到食物，则生成新食物
+        // 子曰：若蛇吃到食物，则生成新食物
         if (result.ate) {
           // 更新分数
           this.gameState.updateScore();
           // 播放音效
           this.soundManager.play('eat');
+          // 生成新食物
+          const newFood = this.gameObjects.createFood(snake);
+          // 更新传入的food引用
+          food.length = 0;
+          newFood.forEach(f => food.push(f));
 
           // 增加食物计数
           this.foodCounter++;
@@ -216,12 +223,7 @@ class Game {
             }, 200); // 200毫秒间隔，产生明显闪烁效果
           }
 
-          // 生成新食物
-          const newFood = this.gameObjects.createFood(snake);
-          if (newFood) {
-            food.x = newFood.x;
-            food.y = newFood.y;
-          }
+          // 子曰：此处已在前文生成新食物，无需重复
         }
 
         // 绘制游戏元素

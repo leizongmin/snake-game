@@ -106,11 +106,12 @@ class Snake {
       return result;
     }
 
-    // 检查是否吃到食物
-    if (food && head.x === food.x && head.y === food.y) {
+    // 子曰：检查是否吃到食物
+    const eatenFood = food.find(f => f.x === head.x && f.y === head.y);
+    if (eatenFood) {
       result.ate = true;
     } else {
-      // 如果没有吃到食物，移除尾部
+      // 子曰：若未食，则去尾
       this.segments.pop();
     }
 
