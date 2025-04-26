@@ -13,8 +13,26 @@ class Renderer {
 
   // 清空画布
   clear() {
-    this.ctx.fillStyle = '#fafafa';
+    // 子曰：绘制渐变背景，如青天白云
+    const gradient = this.ctx.createLinearGradient(0, 0, this.canvas.width, this.canvas.height);
+    gradient.addColorStop(0, '#E3F2FD');
+    gradient.addColorStop(1, '#FAFAFA');
+    this.ctx.fillStyle = gradient;
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+    // 子曰：添加云纹装饰
+    this.ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+    for (let i = 0; i < 5; i++) {
+      const x = (this.canvas.width / 4) * (i % 2 === 0 ? 1 : 3);
+      const y = (this.canvas.height / 4) * (i < 2 ? 1 : 3);
+      const size = Math.min(this.canvas.width, this.canvas.height) / 8;
+
+      this.ctx.beginPath();
+      this.ctx.arc(x, y, size, 0, Math.PI * 2);
+      this.ctx.arc(x + size * 0.6, y - size * 0.2, size * 0.7, 0, Math.PI * 2);
+      this.ctx.arc(x + size * 1.2, y, size * 0.5, 0, Math.PI * 2);
+      this.ctx.fill();
+    }
   }
 
   // 绘制方块 - 基础绘制单元
