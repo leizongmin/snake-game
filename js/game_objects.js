@@ -64,6 +64,7 @@ class GameObjects {
       const maxAttempts = 1000;
       const maxX = this.canvasWidth / this.blockSize;
       const maxY = this.canvasHeight / this.blockSize;
+      let inDangerZone;
       do {
         obstacle = {
           x: Math.floor(Math.random() * maxX),
@@ -73,10 +74,28 @@ class GameObjects {
         if (attempts > maxAttempts) {
           break;
         }
+
+        // 子曰：检查是否在蛇头前进方向的5格范围内
+        const head = snake.segments[0];
+        inDangerZone = (() => {
+          switch (snake.direction) {
+            case 'right':
+              return obstacle.x > head.x && obstacle.x <= head.x + 5 && obstacle.y === head.y;
+            case 'left':
+              return obstacle.x < head.x && obstacle.x >= head.x - 5 && obstacle.y === head.y;
+            case 'up':
+              return obstacle.y < head.y && obstacle.y >= head.y - 5 && obstacle.x === head.x;
+            case 'down':
+              return obstacle.y > head.y && obstacle.y <= head.y + 5 && obstacle.x === head.x;
+            default:
+              return false;
+          }
+        })();
       } while (
         this.isOnSnake(obstacle, snake) ||
         this.isOnObstacle(obstacle) ||
-        this.foods.some(food => food.x === obstacle.x && food.y === obstacle.y)
+        this.foods.some(food => food.x === obstacle.x && food.y === obstacle.y) ||
+        inDangerZone
       );
       if (attempts <= maxAttempts) {
         this.obstacles.push(obstacle);
