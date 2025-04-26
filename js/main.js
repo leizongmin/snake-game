@@ -66,6 +66,9 @@ class Game {
       const mode = this.gameState.getMode();
       this.gameObjects.reset(this.snake, mode.zhangCount);
 
+      // 子曰：更换画布风格
+      this.renderer.resetBackground();
+
       // 重置食物计数器
       this.foodCounter = 0;
 

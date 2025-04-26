@@ -4,6 +4,12 @@ class Renderer {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d');
     this.blockSize = 0; // 将在初始化时设置
+    this.backgroundStyle = 0; // 子曰：初始化背景样式
+  }
+
+  // 子曰：重置游戏时更新背景样式
+  resetBackground() {
+    this.backgroundStyle = Math.floor(Math.random() * 6);
   }
 
   // 初始化渲染器
@@ -11,28 +17,157 @@ class Renderer {
     this.blockSize = blockSize;
   }
 
-  // 清空画布
   clear() {
-    // 子曰：绘制渐变背景，如青天白云
-    const gradient = this.ctx.createLinearGradient(0, 0, this.canvas.width, this.canvas.height);
-    gradient.addColorStop(0, '#E3F2FD');
-    gradient.addColorStop(1, '#FAFAFA');
-    this.ctx.fillStyle = gradient;
-    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-    // 子曰：添加云纹装饰
-    this.ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
-    for (let i = 0; i < 5; i++) {
-      const x = (this.canvas.width / 4) * (i % 2 === 0 ? 1 : 3);
-      const y = (this.canvas.height / 4) * (i < 2 ? 1 : 3);
-      const size = Math.min(this.canvas.width, this.canvas.height) / 8;
+    // 子曰：根据不同样式绘制背景
+    switch (this.backgroundStyle) {
+      case 0: // 子曰：晴空白云
+        this.ctx.fillStyle = '#E6F3FF';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-      this.ctx.beginPath();
-      this.ctx.arc(x, y, size, 0, Math.PI * 2);
-      this.ctx.arc(x + size * 0.6, y - size * 0.2, size * 0.7, 0, Math.PI * 2);
-      this.ctx.arc(x + size * 1.2, y, size * 0.5, 0, Math.PI * 2);
-      this.ctx.fill();
+        // 子曰：绘制白云
+        this.ctx.fillStyle = '#FFFFFF';
+        const cloudPositions = [
+          { x: 50, y: 50 },
+          { x: 200, y: 100 },
+          { x: 350, y: 50 },
+          { x: 100, y: 200 },
+          { x: 300, y: 250 },
+          { x: 450, y: 200 },
+          { x: 200, y: 350 },
+          { x: 400, y: 350 },
+        ];
+
+        for (const pos of cloudPositions) {
+          // 子曰：绘制花瓣状白云
+          for (let j = 0; j < 5; j++) {
+            this.ctx.beginPath();
+            const angle = (j / 5) * Math.PI * 2;
+            const px = pos.x + Math.cos(angle) * 30;
+            const py = pos.y + Math.sin(angle) * 30;
+            this.ctx.arc(px, py, 20, 0, Math.PI * 2);
+            this.ctx.fill();
+          }
+
+          // 子曰：绘制云朵中心
+          this.ctx.beginPath();
+          this.ctx.arc(pos.x, pos.y, 25, 0, Math.PI * 2);
+          this.ctx.fill();
+        }
+        break;
+
+      case 1: // 子曰：绿野草地
+        this.ctx.fillStyle = '#F1F8E9';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        // 子曰：绘制静止的草丛
+        this.ctx.strokeStyle = '#228B22';
+        for (let i = 0; i < 50; i++) {
+          const x = (i * this.canvas.width) / 50 + (i % 2) * 10;
+          const y = (Math.floor(i / 10) * this.canvas.height) / 5 + 20;
+          this.ctx.beginPath();
+          this.ctx.moveTo(x, y);
+          this.ctx.lineTo(x - 5, y - 15);
+          this.ctx.moveTo(x, y);
+          this.ctx.lineTo(x + 5, y - 15);
+          this.ctx.stroke();
+        }
+        break;
+
+      case 2: // 子曰：黄沙漫漫
+        this.ctx.fillStyle = '#FFF3E0';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        // 子曰：绘制静止的沙纹
+        this.ctx.strokeStyle = '#DEB887';
+        for (let i = 0; i < 30; i++) {
+          const x = (i % 6) * (this.canvas.width / 6) + 30;
+          const y = Math.floor(i / 6) * (this.canvas.height / 5) + 30;
+          this.ctx.beginPath();
+          this.ctx.arc(x, y, 20, 0, Math.PI * 2);
+          this.ctx.stroke();
+        }
+        break;
+
+      case 3: // 子曰：碧海蓝天
+        const seaGradient = this.ctx.createLinearGradient(0, 0, 0, this.canvas.height);
+        seaGradient.addColorStop(0, '#87CEEB');
+        seaGradient.addColorStop(1, '#1E90FF');
+        this.ctx.fillStyle = seaGradient;
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        // 子曰：绘制静止的海浪纹理
+        this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+        for (let i = 0; i < 5; i++) {
+          this.ctx.beginPath();
+          this.ctx.moveTo(0, this.canvas.height - 30 * i);
+          this.ctx.lineTo(this.canvas.width, this.canvas.height - 30 * i);
+          this.ctx.stroke();
+        }
+        break;
+
+      case 4: // 子曰：森林幽境
+        this.ctx.fillStyle = '#E8F5E9';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        // 子曰：绘制树木
+        for (let i = 0; i < 15; i++) {
+          const x = (i % 5) * (this.canvas.width / 5) + 40;
+          const y = Math.floor(i / 5) * (this.canvas.height / 3) + 40;
+
+          // 树干
+          this.ctx.fillStyle = '#D2B48C';
+          this.ctx.fillRect(x - 5, y, 10, 40);
+
+          // 树冠
+          this.ctx.fillStyle = '#90EE90';
+          this.ctx.beginPath();
+          this.ctx.arc(x, y, 20, 0, Math.PI * 2);
+          this.ctx.fill();
+        }
+        break;
+
+      case 5: // 子曰：竹林深处
+        this.ctx.fillStyle = '#E8F5E9';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        // 子曰：绘制竹子
+        for (let i = 0; i < 8; i++) {
+          const x = (i * this.canvas.width) / 8 + 10;
+
+          // 竹竿
+          this.ctx.strokeStyle = '#98FB98';
+          this.ctx.lineWidth = 8;
+          this.ctx.beginPath();
+          this.ctx.moveTo(x, 0);
+          this.ctx.lineTo(x, this.canvas.height);
+          this.ctx.stroke();
+
+          // 竹节
+          for (let j = 0; j < 8; j++) {
+            const y = (j * this.canvas.height) / 8;
+            this.ctx.strokeStyle = '#90EE90';
+            this.ctx.lineWidth = 2;
+            this.ctx.beginPath();
+            this.ctx.moveTo(x - 10, y);
+            this.ctx.lineTo(x + 10, y);
+            this.ctx.stroke();
+          }
+        }
+        break;
     }
+  }
+
+  // 子曰：绘制祥云
+  drawCloud(x, y, size) {
+    this.ctx.beginPath();
+    this.ctx.moveTo(x, y);
+    for (let i = 0; i < 3; i++) {
+      this.ctx.quadraticCurveTo(x + size / 2, y - size / 2, x + size, y);
+      x += size;
+    }
+    this.ctx.fill();
   }
 
   // 绘制方块 - 基础绘制单元
