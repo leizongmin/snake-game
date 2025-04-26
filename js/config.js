@@ -11,10 +11,10 @@ class GameConfig {
 
     // 游戏模式
     this.modes = {
-      NORMAL: { name: '普通', speed: 150, zhangCount: 5 },
-      FAST: { name: '快速', speed: 100, zhangCount: 3 },
-      HARD: { name: '困难', speed: 120, zhangCount: 8 },
-      EXPERT: { name: '专家', speed: 80, zhangCount: 12 },
+      NORMAL: { name: '普通', speed: 150, zhangCount: 10 },
+      FAST: { name: '快速', speed: 100, zhangCount: 6 },
+      HARD: { name: '困难', speed: 120, zhangCount: 16 },
+      EXPERT: { name: '专家', speed: 80, zhangCount: 24 },
     };
 
     // 默认模式
