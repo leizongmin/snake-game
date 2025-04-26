@@ -269,19 +269,13 @@ class SoundManager {
     if (cache) {
       // 使用缓存的频率设置
       oscillator.frequency.setValueAtTime(cache.startFreq, now);
-      oscillator.frequency.exponentialRampToValueAtTime(
-        cache.endFreq,
-        now + duration
-      );
+      oscillator.frequency.exponentialRampToValueAtTime(cache.endFreq, now + duration);
     } else {
       // 创建新的频率设置
       const startFreq = 150;
       const endFreq = 800;
       oscillator.frequency.setValueAtTime(startFreq, now);
-      oscillator.frequency.exponentialRampToValueAtTime(
-        endFreq,
-        now + duration
-      );
+      oscillator.frequency.exponentialRampToValueAtTime(endFreq, now + duration);
 
       // 缓存音效配置
       this.soundCache['eat'] = {
@@ -342,16 +336,10 @@ class SoundManager {
     if (cache) {
       // 使用缓存的频率设置
       oscillator.frequency.setValueAtTime(cache.startFreq, now);
-      oscillator.frequency.linearRampToValueAtTime(
-        cache.endFreq,
-        now + duration
-      );
+      oscillator.frequency.linearRampToValueAtTime(cache.endFreq, now + duration);
       if (cache.startFreq2 && cache.endFreq2) {
         oscillator2.frequency.setValueAtTime(cache.startFreq2, now);
-        oscillator2.frequency.linearRampToValueAtTime(
-          cache.endFreq2,
-          now + duration
-        );
+        oscillator2.frequency.linearRampToValueAtTime(cache.endFreq2, now + duration);
       }
     } else {
       // 创建新的频率设置 - 提高频率使声音更明显
@@ -423,19 +411,13 @@ class SoundManager {
     if (cache) {
       // 使用缓存的频率设置
       oscillator.frequency.setValueAtTime(cache.startFreq, now);
-      oscillator.frequency.exponentialRampToValueAtTime(
-        cache.endFreq,
-        now + duration
-      );
+      oscillator.frequency.exponentialRampToValueAtTime(cache.endFreq, now + duration);
     } else {
       // 创建新的频率设置
       const startFreq = 330;
       const endFreq = 110;
       oscillator.frequency.setValueAtTime(startFreq, now);
-      oscillator.frequency.exponentialRampToValueAtTime(
-        endFreq,
-        now + duration
-      );
+      oscillator.frequency.exponentialRampToValueAtTime(endFreq, now + duration);
 
       // 缓存音效配置
       this.soundCache['pause'] = {
@@ -486,18 +468,12 @@ class SoundManager {
         const now = this.audioContext.currentTime;
         if (this.audioNodes[soundName].endTime > now) {
           // 停止主振荡器
-          if (
-            this.audioNodes[soundName].oscillator &&
-            typeof this.audioNodes[soundName].oscillator.stop === 'function'
-          ) {
+          if (this.audioNodes[soundName].oscillator && typeof this.audioNodes[soundName].oscillator.stop === 'function') {
             this.audioNodes[soundName].oscillator.stop(0);
           }
 
           // 停止第二振荡器（如果存在）
-          if (
-            this.audioNodes[soundName].oscillator2 &&
-            typeof this.audioNodes[soundName].oscillator2.stop === 'function'
-          ) {
+          if (this.audioNodes[soundName].oscillator2 && typeof this.audioNodes[soundName].oscillator2.stop === 'function') {
             this.audioNodes[soundName].oscillator2.stop(0);
           }
         }
