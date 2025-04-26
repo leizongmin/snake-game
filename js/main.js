@@ -45,6 +45,9 @@ class Game {
     // 创建初始食物和障碍物
     this.gameObjects.createFood(this.snake);
 
+    // 播放背景音乐
+    this.soundManager.playBgm();
+
     // 显示开始界面
     this.gameState.init();
 
@@ -58,8 +61,29 @@ class Game {
       const mode = this.gameState.getMode();
       this.gameObjects.reset(this.snake, mode.zhangCount);
 
+      // 确保背景音乐播放
+      if (!this.soundManager.bgmPlaying) {
+        this.soundManager.playBgm();
+      }
+
       // 调用原始方法
       originalStartGame.call(this.gameState, this.snake, this.gameObjects.getFood(), this.gameObjects.getObstacles());
+    };
+
+    // 扩展游戏状态的暂停方法，控制背景音乐
+    const originalTogglePause = this.gameState.togglePause;
+    this.gameState.togglePause = () => {
+      // 切换背景音乐状态
+      if (this.gameState.currentState === this.config.state.PLAYING) {
+        // 如果当前正在播放，即将暂停，则暂停背景音乐
+        this.soundManager.stopBgm();
+      } else if (this.gameState.currentState === this.config.state.PAUSED) {
+        // 如果当前已暂停，即将恢复，则恢复背景音乐
+        this.soundManager.playBgm();
+      }
+
+      // 调用原始方法
+      originalTogglePause.call(this.gameState);
     };
 
     // 扩展游戏状态的startGameLoop方法，添加食物更新
@@ -82,6 +106,8 @@ class Game {
         const result = snake.move(food, obstacles);
 
         if (result.gameOver) {
+          // 游戏结束时停止背景音乐
+          this.soundManager.stopBgm();
           this.gameState.gameOver();
           return;
         }

@@ -13,8 +13,13 @@ class SoundManager {
       eat: 0.3,
       crash: 0.4,
       pause: 0.3,
+      bgm: 0.2, // 背景音乐音量
       master: 1.0, // 主音量控制
     };
+
+    // 背景音乐状态
+    this.bgmPlaying = false;
+    this.bgmNodes = null;
 
     // 尝试初始化Web Audio API
     try {
@@ -508,6 +513,9 @@ class SoundManager {
       this.stop(soundName);
     });
 
+    // 停止背景音乐
+    this.stopBgm();
+
     // 添加8位风格的停止音效
     if (this.audioContext) {
       try {
@@ -555,6 +563,227 @@ class SoundManager {
       // 清除所有缓存
       this.soundCache = {};
       return true;
+    }
+  }
+
+  // 播放背景音乐 - 八十年代风格的循环旋律
+  playBgm() {
+    if (!this.audioContext) {
+      console.warn('音频上下文不可用，无法播放背景音乐');
+      return false;
+    }
+
+    // 如果已经在播放，先停止
+    if (this.bgmPlaying) {
+      this.stopBgm();
+    }
+
+    try {
+      const now = this.audioContext.currentTime;
+      const volume = this.getEffectiveVolume('bgm');
+
+      // 创建主旋律振荡器
+      const melodyOsc = this.audioContext.createOscillator();
+      melodyOsc.type = 'square'; // 方波 - 8位音效特征
+
+      // 创建低音振荡器
+      const bassOsc = this.audioContext.createOscillator();
+      bassOsc.type = 'triangle'; // 三角波 - 更柔和的低音
+
+      // 创建节奏振荡器
+      const rhythmOsc = this.audioContext.createOscillator();
+      rhythmOsc.type = 'square';
+
+      // 创建增益节点控制音量
+      const melodyGain = this.audioContext.createGain();
+      melodyGain.gain.setValueAtTime(volume * 0.6, now); // 主旋律音量
+
+      const bassGain = this.audioContext.createGain();
+      bassGain.gain.setValueAtTime(volume * 0.4, now); // 低音音量
+
+      const rhythmGain = this.audioContext.createGain();
+      rhythmGain.gain.setValueAtTime(volume * 0.2, now); // 节奏音量
+
+      // 创建低通滤波器 - 模拟老式硬件
+      const filter = this.createLowPassFilter();
+      filter.frequency.value = 1800; // 降低截止频率，使声音更复古
+
+      // 设置主旋律音符序列 - 经典的8位游戏旋律
+      const melodyNotes = [
+        { note: 330, duration: 0.2 }, // E4
+        { note: 330, duration: 0.2 }, // E4
+        { note: 0, duration: 0.1 }, // 休止符
+        { note: 330, duration: 0.2 }, // E4
+        { note: 0, duration: 0.1 }, // 休止符
+        { note: 262, duration: 0.2 }, // C4
+        { note: 330, duration: 0.2 }, // E4
+        { note: 0, duration: 0.1 }, // 休止符
+        { note: 392, duration: 0.4 }, // G4
+        { note: 0, duration: 0.4 }, // 休止符
+        { note: 196, duration: 0.4 }, // G3
+      ];
+
+      // 设置低音音符序列
+      const bassNotes = [
+        { note: 65.4, duration: 0.4 }, // C2
+        { note: 65.4, duration: 0.4 }, // C2
+        { note: 73.4, duration: 0.4 }, // D2
+        { note: 98, duration: 0.4 }, // G2
+        { note: 65.4, duration: 0.4 }, // C2
+        { note: 65.4, duration: 0.4 }, // C2
+      ];
+
+      // 设置节奏音符序列
+      const rhythmNotes = [
+        { note: 130.8, duration: 0.1, gain: 0.1 }, // C3
+        { note: 0, duration: 0.1, gain: 0 }, // 休止符
+        { note: 130.8, duration: 0.1, gain: 0.05 }, // C3 (轻音)
+        { note: 0, duration: 0.1, gain: 0 }, // 休止符
+        { note: 130.8, duration: 0.1, gain: 0.1 }, // C3
+        { note: 0, duration: 0.1, gain: 0 }, // 休止符
+        { note: 130.8, duration: 0.1, gain: 0.05 }, // C3 (轻音)
+        { note: 0, duration: 0.1, gain: 0 }, // 休止符
+      ];
+
+      // 计算总时长
+      const calculateDuration = notes => {
+        return notes.reduce((sum, note) => sum + note.duration, 0);
+      };
+
+      const melodyDuration = calculateDuration(melodyNotes);
+      const bassDuration = calculateDuration(bassNotes);
+      const rhythmDuration = calculateDuration(rhythmNotes);
+
+      // 创建循环播放函数
+      const scheduleNotes = (oscillator, gainNode, notes, startTime, totalDuration) => {
+        let currentTime = startTime;
+
+        // 循环播放音符
+        const playNotes = () => {
+          notes.forEach(note => {
+            // 设置频率（0表示休止符）
+            if (note.note > 0) {
+              oscillator.frequency.setValueAtTime(note.note, currentTime);
+              // 如果有特定的增益值
+              if (note.gain !== undefined) {
+                gainNode.gain.setValueAtTime(note.gain * volume, currentTime);
+              } else {
+                gainNode.gain.setValueAtTime(volume * 0.5, currentTime);
+              }
+            } else {
+              // 休止符 - 将增益设为0
+              gainNode.gain.setValueAtTime(0, currentTime);
+            }
+            currentTime += note.duration;
+          });
+
+          // 安排下一个循环
+          setTimeout(
+            () => {
+              // 检查是否仍在播放
+              if (this.bgmPlaying) {
+                currentTime = this.audioContext.currentTime;
+                playNotes();
+              }
+            },
+            totalDuration * 1000 - 50
+          ); // 提前50ms安排下一次，避免间隙
+        };
+
+        // 开始第一次播放
+        playNotes();
+      };
+
+      // 连接节点
+      melodyOsc.connect(melodyGain);
+      bassOsc.connect(bassGain);
+      rhythmOsc.connect(rhythmGain);
+
+      melodyGain.connect(filter);
+      bassGain.connect(filter);
+      rhythmGain.connect(filter);
+
+      filter.connect(this.audioContext.destination);
+
+      // 开始播放振荡器
+      melodyOsc.start(now);
+      bassOsc.start(now);
+      rhythmOsc.start(now);
+
+      // 安排音符序列
+      scheduleNotes(melodyOsc, melodyGain, melodyNotes, now, melodyDuration);
+      scheduleNotes(bassOsc, bassGain, bassNotes, now, bassDuration);
+      scheduleNotes(rhythmOsc, rhythmGain, rhythmNotes, now, rhythmDuration);
+
+      // 保存节点引用
+      this.bgmNodes = {
+        melodyOsc,
+        bassOsc,
+        rhythmOsc,
+        melodyGain,
+        bassGain,
+        rhythmGain,
+        filter,
+      };
+
+      this.bgmPlaying = true;
+      console.log('背景音乐开始播放');
+      return true;
+    } catch (e) {
+      console.error('背景音乐播放失败:', e);
+      return false;
+    }
+  }
+
+  // 停止背景音乐
+  stopBgm() {
+    if (this.bgmPlaying && this.bgmNodes) {
+      try {
+        // 停止所有振荡器
+        const now = this.audioContext.currentTime;
+
+        // 淡出效果
+        this.bgmNodes.melodyGain.gain.linearRampToValueAtTime(0, now + 0.2);
+        this.bgmNodes.bassGain.gain.linearRampToValueAtTime(0, now + 0.2);
+        this.bgmNodes.rhythmGain.gain.linearRampToValueAtTime(0, now + 0.2);
+
+        // 延迟停止振荡器，让淡出效果完成
+        setTimeout(() => {
+          if (this.bgmNodes) {
+            this.bgmNodes.melodyOsc.stop();
+            this.bgmNodes.bassOsc.stop();
+            this.bgmNodes.rhythmOsc.stop();
+
+            // 断开所有节点连接
+            this.bgmNodes.melodyOsc.disconnect();
+            this.bgmNodes.bassOsc.disconnect();
+            this.bgmNodes.rhythmOsc.disconnect();
+            this.bgmNodes.melodyGain.disconnect();
+            this.bgmNodes.bassGain.disconnect();
+            this.bgmNodes.rhythmGain.disconnect();
+            this.bgmNodes.filter.disconnect();
+
+            this.bgmNodes = null;
+          }
+        }, 200);
+
+        this.bgmPlaying = false;
+        console.log('背景音乐已停止');
+        return true;
+      } catch (e) {
+        console.warn('停止背景音乐失败:', e);
+        return false;
+      }
+    }
+    return false;
+  }
+
+  // 暂停/恢复背景音乐
+  toggleBgm() {
+    if (this.bgmPlaying) {
+      return this.stopBgm();
+    } else {
+      return this.playBgm();
     }
   }
 }
