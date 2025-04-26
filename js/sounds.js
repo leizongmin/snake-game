@@ -608,42 +608,246 @@ class SoundManager {
       const filter = this.createLowPassFilter();
       filter.frequency.value = 1800; // 降低截止频率，使声音更复古
 
-      // 设置主旋律音符序列 - 经典的8位游戏旋律
-      const melodyNotes = [
-        { note: 330, duration: 0.2 }, // E4
-        { note: 330, duration: 0.2 }, // E4
-        { note: 0, duration: 0.1 }, // 休止符
-        { note: 330, duration: 0.2 }, // E4
-        { note: 0, duration: 0.1 }, // 休止符
-        { note: 262, duration: 0.2 }, // C4
-        { note: 330, duration: 0.2 }, // E4
-        { note: 0, duration: 0.1 }, // 休止符
-        { note: 392, duration: 0.4 }, // G4
-        { note: 0, duration: 0.4 }, // 休止符
-        { note: 196, duration: 0.4 }, // G3
+      // 经典游戏音乐集合
+      const musicCollection = [
+        // 1. 原始简单旋律
+        {
+          name: '简单旋律',
+          melody: [
+            { note: 330, duration: 0.2 }, // E4
+            { note: 330, duration: 0.2 }, // E4
+            { note: 0, duration: 0.1 }, // 休止符
+            { note: 330, duration: 0.2 }, // E4
+            { note: 0, duration: 0.1 }, // 休止符
+            { note: 262, duration: 0.2 }, // C4
+            { note: 330, duration: 0.2 }, // E4
+            { note: 0, duration: 0.1 }, // 休止符
+            { note: 392, duration: 0.4 }, // G4
+            { note: 0, duration: 0.4 }, // 休止符
+            { note: 196, duration: 0.4 }, // G3
+          ],
+          bass: [
+            { note: 65.4, duration: 0.4 }, // C2
+            { note: 65.4, duration: 0.4 }, // C2
+            { note: 73.4, duration: 0.4 }, // D2
+            { note: 98, duration: 0.4 }, // G2
+            { note: 65.4, duration: 0.4 }, // C2
+            { note: 65.4, duration: 0.4 }, // C2
+          ],
+          rhythm: [
+            { note: 130.8, duration: 0.1, gain: 0.1 }, // C3
+            { note: 0, duration: 0.1, gain: 0 }, // 休止符
+            { note: 130.8, duration: 0.1, gain: 0.05 }, // C3 (轻音)
+            { note: 0, duration: 0.1, gain: 0 }, // 休止符
+            { note: 130.8, duration: 0.1, gain: 0.1 }, // C3
+            { note: 0, duration: 0.1, gain: 0 }, // 休止符
+            { note: 130.8, duration: 0.1, gain: 0.05 }, // C3 (轻音)
+            { note: 0, duration: 0.1, gain: 0 }, // 休止符
+          ],
+        },
+        // 2. 超级马里奥主题
+        {
+          name: '超级马里奥',
+          melody: [
+            { note: 330, duration: 0.15 }, // E4
+            { note: 0, duration: 0.05 },
+            { note: 330, duration: 0.15 }, // E4
+            { note: 0, duration: 0.15 },
+            { note: 330, duration: 0.15 }, // E4
+            { note: 0, duration: 0.15 },
+            { note: 262, duration: 0.15 }, // C4
+            { note: 330, duration: 0.15 }, // E4
+            { note: 0, duration: 0.15 },
+            { note: 392, duration: 0.3 }, // G4
+            { note: 0, duration: 0.3 },
+            { note: 196, duration: 0.3 }, // G3
+            { note: 0, duration: 0.15 },
+            { note: 262, duration: 0.3 }, // C4
+            { note: 0, duration: 0.15 },
+            { note: 196, duration: 0.15 }, // G3
+            { note: 0, duration: 0.15 },
+            { note: 165, duration: 0.3 }, // E3
+            { note: 0, duration: 0.15 },
+            { note: 220, duration: 0.15 }, // A3
+            { note: 0, duration: 0.1 },
+            { note: 247, duration: 0.15 }, // B3
+            { note: 0, duration: 0.1 },
+            { note: 233, duration: 0.15 }, // A#3/Bb3
+            { note: 220, duration: 0.15 }, // A3
+          ],
+          bass: [
+            { note: 65.4, duration: 0.3 }, // C2
+            { note: 130.8, duration: 0.3 }, // C3
+            { note: 65.4, duration: 0.3 }, // C2
+            { note: 98, duration: 0.3 }, // G2
+            { note: 65.4, duration: 0.3 }, // C2
+            { note: 49, duration: 0.3 }, // G1
+            { note: 65.4, duration: 0.3 }, // C2
+            { note: 73.4, duration: 0.3 }, // D2
+            { note: 82.4, duration: 0.3 }, // E2
+            { note: 55, duration: 0.3 }, // A1
+          ],
+          rhythm: [
+            { note: 130.8, duration: 0.1, gain: 0.1 }, // C3
+            { note: 0, duration: 0.1, gain: 0 },
+            { note: 130.8, duration: 0.1, gain: 0.05 }, // C3
+            { note: 0, duration: 0.1, gain: 0 },
+            { note: 196, duration: 0.1, gain: 0.1 }, // G3
+            { note: 0, duration: 0.1, gain: 0 },
+            { note: 196, duration: 0.1, gain: 0.05 }, // G3
+            { note: 0, duration: 0.1, gain: 0 },
+          ],
+        },
+        // 3. 俄罗斯方块主题
+        {
+          name: '俄罗斯方块',
+          melody: [
+            { note: 165, duration: 0.15 }, // E3
+            { note: 0, duration: 0.05 },
+            { note: 247, duration: 0.15 }, // B3
+            { note: 330, duration: 0.15 }, // E4
+            { note: 311, duration: 0.15 }, // D#4/Eb4
+            { note: 294, duration: 0.15 }, // D4
+            { note: 277, duration: 0.3 }, // C#4/Db4
+            { note: 247, duration: 0.15 }, // B3
+            { note: 262, duration: 0.15 }, // C4
+            { note: 294, duration: 0.3 }, // D4
+            { note: 0, duration: 0.15 },
+            { note: 262, duration: 0.15 }, // C4
+            { note: 247, duration: 0.15 }, // B3
+            { note: 220, duration: 0.3 }, // A3
+            { note: 0, duration: 0.15 },
+            { note: 220, duration: 0.15 }, // A3
+            { note: 262, duration: 0.15 }, // C4
+            { note: 294, duration: 0.3 }, // D4
+            { note: 0, duration: 0.15 },
+            { note: 262, duration: 0.15 }, // C4
+            { note: 247, duration: 0.15 }, // B3
+            { note: 220, duration: 0.15 }, // A3
+            { note: 247, duration: 0.15 }, // B3
+            { note: 262, duration: 0.3 }, // C4
+          ],
+          bass: [
+            { note: 82.4, duration: 0.3 }, // E2
+            { note: 123.5, duration: 0.3 }, // B2
+            { note: 82.4, duration: 0.3 }, // E2
+            { note: 110, duration: 0.3 }, // A2
+            { note: 82.4, duration: 0.3 }, // E2
+            { note: 110, duration: 0.3 }, // A2
+            { note: 82.4, duration: 0.3 }, // E2
+            { note: 123.5, duration: 0.3 }, // B2
+            { note: 82.4, duration: 0.3 }, // E2
+            { note: 110, duration: 0.3 }, // A2
+          ],
+          rhythm: [
+            { note: 165, duration: 0.1, gain: 0.1 }, // E3
+            { note: 0, duration: 0.1, gain: 0 },
+            { note: 165, duration: 0.1, gain: 0.05 }, // E3
+            { note: 0, duration: 0.1, gain: 0 },
+            { note: 220, duration: 0.1, gain: 0.1 }, // A3
+            { note: 0, duration: 0.1, gain: 0 },
+            { note: 165, duration: 0.1, gain: 0.05 }, // E3
+            { note: 0, duration: 0.1, gain: 0 },
+          ],
+        },
+        // 4. 塞尔达传说主题
+        {
+          name: '塞尔达传说',
+          melody: [
+            { note: 196, duration: 0.2 }, // G3
+            { note: 0, duration: 0.05 },
+            { note: 262, duration: 0.2 }, // C4
+            { note: 0, duration: 0.05 },
+            { note: 330, duration: 0.4 }, // E4
+            { note: 0, duration: 0.1 },
+            { note: 392, duration: 0.4 }, // G4
+            { note: 0, duration: 0.1 },
+            { note: 330, duration: 0.2 }, // E4
+            { note: 392, duration: 0.2 }, // G4
+            { note: 494, duration: 0.4 }, // B4
+            { note: 0, duration: 0.1 },
+            { note: 440, duration: 0.2 }, // A4
+            { note: 392, duration: 0.2 }, // G4
+            { note: 330, duration: 0.2 }, // E4
+            { note: 262, duration: 0.2 }, // C4
+            { note: 294, duration: 0.2 }, // D4
+            { note: 330, duration: 0.4 }, // E4
+          ],
+          bass: [
+            { note: 98, duration: 0.4 }, // G2
+            { note: 65.4, duration: 0.4 }, // C2
+            { note: 98, duration: 0.4 }, // G2
+            { note: 65.4, duration: 0.4 }, // C2
+            { note: 73.4, duration: 0.4 }, // D2
+            { note: 98, duration: 0.4 }, // G2
+            { note: 65.4, duration: 0.4 }, // C2
+            { note: 73.4, duration: 0.4 }, // D2
+          ],
+          rhythm: [
+            { note: 196, duration: 0.1, gain: 0.1 }, // G3
+            { note: 0, duration: 0.1, gain: 0 },
+            { note: 196, duration: 0.1, gain: 0.05 }, // G3
+            { note: 0, duration: 0.1, gain: 0 },
+            { note: 262, duration: 0.1, gain: 0.1 }, // C4
+            { note: 0, duration: 0.1, gain: 0 },
+            { note: 196, duration: 0.1, gain: 0.05 }, // G3
+            { note: 0, duration: 0.1, gain: 0 },
+          ],
+        },
+        // 5. 吃豆人主题
+        {
+          name: '吃豆人',
+          melody: [
+            { note: 247, duration: 0.15 }, // B3
+            { note: 370, duration: 0.15 }, // F#4/Gb4
+            { note: 330, duration: 0.15 }, // E4
+            { note: 370, duration: 0.15 }, // F#4/Gb4
+            { note: 247, duration: 0.15 }, // B3
+            { note: 0, duration: 0.15 },
+            { note: 196, duration: 0.15 }, // G3
+            { note: 0, duration: 0.15 },
+            { note: 220, duration: 0.15 }, // A3
+            { note: 0, duration: 0.15 },
+            { note: 247, duration: 0.15 }, // B3
+            { note: 0, duration: 0.15 },
+            { note: 220, duration: 0.15 }, // A3
+            { note: 196, duration: 0.15 }, // G3
+            { note: 175, duration: 0.15 }, // F3
+            { note: 196, duration: 0.15 }, // G3
+            { note: 220, duration: 0.15 }, // A3
+            { note: 247, duration: 0.15 }, // B3
+          ],
+          bass: [
+            { note: 123.5, duration: 0.3 }, // B2
+            { note: 185, duration: 0.3 }, // F#3/Gb3
+            { note: 123.5, duration: 0.3 }, // B2
+            { note: 98, duration: 0.3 }, // G2
+            { note: 110, duration: 0.3 }, // A2
+            { note: 123.5, duration: 0.3 }, // B2
+            { note: 110, duration: 0.3 }, // A2
+            { note: 98, duration: 0.3 }, // G2
+          ],
+          rhythm: [
+            { note: 247, duration: 0.1, gain: 0.1 }, // B3
+            { note: 0, duration: 0.1, gain: 0 },
+            { note: 247, duration: 0.1, gain: 0.05 }, // B3
+            { note: 0, duration: 0.1, gain: 0 },
+            { note: 196, duration: 0.1, gain: 0.1 }, // G3
+            { note: 0, duration: 0.1, gain: 0 },
+            { note: 196, duration: 0.1, gain: 0.05 }, // G3
+            { note: 0, duration: 0.1, gain: 0 },
+          ],
+        },
       ];
 
-      // 设置低音音符序列
-      const bassNotes = [
-        { note: 65.4, duration: 0.4 }, // C2
-        { note: 65.4, duration: 0.4 }, // C2
-        { note: 73.4, duration: 0.4 }, // D2
-        { note: 98, duration: 0.4 }, // G2
-        { note: 65.4, duration: 0.4 }, // C2
-        { note: 65.4, duration: 0.4 }, // C2
-      ];
+      // 随机选择一首音乐
+      const selectedMusic = musicCollection[Math.floor(Math.random() * musicCollection.length)];
+      console.log(`播放背景音乐: ${selectedMusic.name}`);
 
-      // 设置节奏音符序列
-      const rhythmNotes = [
-        { note: 130.8, duration: 0.1, gain: 0.1 }, // C3
-        { note: 0, duration: 0.1, gain: 0 }, // 休止符
-        { note: 130.8, duration: 0.1, gain: 0.05 }, // C3 (轻音)
-        { note: 0, duration: 0.1, gain: 0 }, // 休止符
-        { note: 130.8, duration: 0.1, gain: 0.1 }, // C3
-        { note: 0, duration: 0.1, gain: 0 }, // 休止符
-        { note: 130.8, duration: 0.1, gain: 0.05 }, // C3 (轻音)
-        { note: 0, duration: 0.1, gain: 0 }, // 休止符
-      ];
+      // 使用选中的音乐
+      const melodyNotes = selectedMusic.melody;
+      const bassNotes = selectedMusic.bass;
+      const rhythmNotes = selectedMusic.rhythm;
 
       // 计算总时长
       const calculateDuration = notes => {
