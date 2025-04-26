@@ -49,6 +49,11 @@ class GameState {
     this.renderer.updateScore(this.score);
   }
 
+  // 更新生命值
+  updateLives(lives) {
+    this.renderer.updateLives(lives);
+  }
+
   // 游戏循环
   startGameLoop(snake, food, obstacles) {
     // 清除之前的游戏循环

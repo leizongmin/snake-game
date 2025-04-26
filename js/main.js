@@ -69,6 +69,9 @@ class Game {
       // 重置食物计数器
       this.foodCounter = 0;
 
+      // 初始化生命值显示
+      this.gameState.updateLives(this.snake.lives);
+
       // 确保背景音乐播放
       if (!this.soundManager.bgmPlaying) {
         this.soundManager.playBgm();
@@ -112,6 +115,9 @@ class Game {
 
         // 移动蛇并检查游戏状态
         const result = snake.move(food, obstacles);
+
+        // 更新生命值显示
+        this.gameState.updateLives(snake.lives);
 
         if (result.gameOver) {
           // 游戏结束时停止背景音乐

@@ -82,6 +82,54 @@ class Renderer {
     this.ctx.stroke();
   }
 
+  // 子曰：绘制生命之果
+  drawLifeFruit(x, y, size) {
+    const time = Date.now() / 300; // 加快闪烁速度
+    const alpha = 0.5 + 0.5 * Math.sin(time); // 增加透明度变化范围
+
+    // 果实主体
+    this.ctx.fillStyle = `rgba(233, 30, 99, ${alpha})`;
+    this.ctx.beginPath();
+    this.ctx.arc(x + size / 2, y + size / 2, size / 2, 0, Math.PI * 2);
+    this.ctx.fill();
+
+    // 绘制心形
+    this.ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+    this.ctx.beginPath();
+    const centerX = x + size / 2;
+    const centerY = y + size / 2;
+    const heartSize = size / 4;
+
+    // 左半心
+    this.ctx.moveTo(centerX, centerY + heartSize / 4);
+    this.ctx.bezierCurveTo(
+      centerX - heartSize / 2,
+      centerY,
+      centerX - heartSize / 2,
+      centerY - heartSize / 2,
+      centerX,
+      centerY - heartSize / 4
+    );
+
+    // 右半心
+    this.ctx.bezierCurveTo(
+      centerX + heartSize / 2,
+      centerY - heartSize / 2,
+      centerX + heartSize / 2,
+      centerY,
+      centerX,
+      centerY + heartSize / 4
+    );
+    this.ctx.fill();
+
+    // 绘制数字1，增大字号并加粗
+    this.ctx.fillStyle = '#FF0000';
+    this.ctx.font = `bold ${size / 2}px Arial`;
+    this.ctx.textAlign = 'center';
+    this.ctx.textBaseline = 'middle';
+    this.ctx.fillText('1', centerX, centerY);
+  }
+
   drawRect(x, y, color, type = 'default', snake = null) {
     const size = this.blockSize - 2;
     const xPos = x * this.blockSize;
@@ -182,10 +230,15 @@ class Renderer {
       this.ctx.closePath();
       this.ctx.fill();
     } else if (type === 'food') {
-      // 子曰：食物形状多变
-      const foodTypes = [this.drawApple.bind(this), this.drawTomato.bind(this), this.drawPotato.bind(this), this.drawBanana.bind(this)];
-      const foodIndex = Math.floor(x * y) % foodTypes.length;
-      foodTypes[foodIndex](xPos, yPos, size);
+      if (color === 'life') {
+        // 子曰：绘制生命之果
+        this.drawLifeFruit(xPos, yPos, size);
+      } else {
+        // 子曰：食物形状多变
+        const foodTypes = [this.drawApple.bind(this), this.drawTomato.bind(this), this.drawPotato.bind(this), this.drawBanana.bind(this)];
+        const foodIndex = Math.floor(x * y) % foodTypes.length;
+        foodTypes[foodIndex](xPos, yPos, size);
+      }
     } else if (type === 'obstacle') {
       // 子曰：砖石方正
       this.ctx.beginPath();
@@ -223,7 +276,7 @@ class Renderer {
 
   // 绘制蛇
   drawSnake(snake) {
-    // 《论语·为政》曰："为政以德，譬如北辰，居其所而众星共之。"
+    // 《论语·为政》曰："为政以德，譬如北辰，居之所而众星共之。"
     // 校验snake对象及其segments数组之有效性，若无则不绘制
     if (!snake || !Array.isArray(snake.segments) || snake.segments.length === 0) {
       // 若snake未定义或segments为空，则不作绘制
@@ -246,7 +299,7 @@ class Renderer {
   drawFood(foods) {
     // 子曰：遍历食物数组，逐一绘制
     foods.forEach(food => {
-      this.drawRect(food.x, food.y, null, 'food');
+      this.drawRect(food.x, food.y, food.type || null, 'food');
     });
   }
 
@@ -346,6 +399,11 @@ class Renderer {
   // 更新分数显示
   updateScore(score) {
     document.getElementById('score').textContent = `得分：${score}`;
+  }
+
+  // 更新生命值显示
+  updateLives(lives) {
+    document.getElementById('lives').textContent = `生命：${lives}`;
   }
 }
 

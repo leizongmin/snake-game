@@ -43,6 +43,9 @@ class GameObjects {
       // 子曰：随机选取一格生成新食物
       const idx = Math.floor(Math.random() * available.length);
       const food = available[idx];
+
+      // 子曰：随机生成增加生命值之食物，概率为五分之一
+      food.type = Math.random() < 0.2 ? 'life' : 'normal';
       this.foods.push(food);
 
       // 子曰：从可用格子中移除已用之格

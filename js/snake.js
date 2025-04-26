@@ -16,6 +16,9 @@ class Snake {
     // 移动方向
     this.direction = 'right';
     this.nextDirection = 0; // 待行方向
+
+    // 子曰：初始生命值
+    this.lives = 1;
   }
 
   // 重置蛇
@@ -27,6 +30,9 @@ class Snake {
     ];
     this.direction = 'right';
     this.nextDirection = 0;
+
+    // 子曰：重置生命值
+    this.lives = 1;
   }
 
   // 获取蛇的长度
@@ -88,21 +94,24 @@ class Snake {
         break;
     }
 
-    // 检查是否撞墙
+    // 子曰：检查是否撞墙
     if (head.x < 0 || head.x >= this.canvasWidth / this.blockSize || head.y < 0 || head.y >= this.canvasHeight / this.blockSize) {
-      result.gameOver = true;
+      this.lives--;
+      result.gameOver = this.lives <= 0;
       return result;
     }
 
-    // 检查是否撞到障碍物
+    // 子曰：检查是否撞到障碍物
     if (obstacles && obstacles.some(o => o.x === head.x && o.y === head.y)) {
-      result.gameOver = true;
+      this.lives--;
+      result.gameOver = this.lives <= 0;
       return result;
     }
 
-    // 检查是否撞到自己
+    // 子曰：检查是否撞到自己
     if (this.segments.some(segment => segment.x === head.x && segment.y === head.y)) {
-      result.gameOver = true;
+      this.lives--;
+      result.gameOver = this.lives <= 0;
       return result;
     }
 
@@ -110,6 +119,10 @@ class Snake {
     const eatenFood = food.find(f => f.x === head.x && f.y === head.y);
     if (eatenFood) {
       result.ate = true;
+      // 子曰：若食用生命之果，则增加生命值
+      if (eatenFood.type === 'life') {
+        this.lives++;
+      }
     } else {
       // 子曰：若未食，则去尾
       this.segments.pop();
