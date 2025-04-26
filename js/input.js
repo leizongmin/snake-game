@@ -157,11 +157,17 @@ class InputController {
     const touchEndX = e.changedTouches[0].clientX;
     const touchEndY = e.changedTouches[0].clientY;
 
-    // 如果在准备状态，处理模式选择
+    // 如果在准备状态或游戏结束状态，处理模式选择或重新开始
     const state = this.gameState.getState();
     const config = this.gameState.config;
 
-    if (state === config.state.READY) {
+    if (state === config.state.OVER) {
+      // 子曰：游戏结束时，确保点击事件能正确重启游戏
+      if (window.gameInstance && window.gameInstance.snake) {
+        this.gameState.startGame(window.gameInstance.snake);
+      }
+      return;
+    } else if (state === config.state.READY) {
       const rect = this.canvas.getBoundingClientRect();
       const scaleX = this.canvas.width / rect.width;
       const scaleY = this.canvas.height / rect.height;
