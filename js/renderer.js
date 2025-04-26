@@ -141,7 +141,7 @@ class Renderer {
 
     if (type === 'head') {
       // 子曰：蛇头圆润，眼睛明亮
-      this.ctx.roundRect(xPos, yPos, size, size, 8);
+      this.ctx.arc(xPos + size / 2, yPos + size / 2, size / 2, 0, Math.PI * 2);
       this.ctx.fill();
 
       // 子曰：计算眼睛位置
@@ -196,38 +196,8 @@ class Renderer {
       }
       this.ctx.fill();
     } else if (type === 'tail') {
-      // 子曰：蛇尾尖锐，随其行而动
-      const segments = snake.segments;
-      const tail = segments[segments.length - 1];
-      const beforeTail = segments[segments.length - 2];
-
-      // 子曰：计算蛇尾朝向
-      const dx = tail.x - beforeTail.x;
-      const dy = tail.y - beforeTail.y;
-
-      this.ctx.beginPath();
-      if (dx > 0) {
-        // 向左
-        this.ctx.moveTo(xPos + size, yPos + size / 2);
-        this.ctx.lineTo(xPos, yPos);
-        this.ctx.lineTo(xPos, yPos + size);
-      } else if (dx < 0) {
-        // 向右
-        this.ctx.moveTo(xPos, yPos + size / 2);
-        this.ctx.lineTo(xPos + size, yPos);
-        this.ctx.lineTo(xPos + size, yPos + size);
-      } else if (dy > 0) {
-        // 向上
-        this.ctx.moveTo(xPos + size / 2, yPos + size);
-        this.ctx.lineTo(xPos, yPos);
-        this.ctx.lineTo(xPos + size, yPos);
-      } else {
-        // 向下
-        this.ctx.moveTo(xPos + size / 2, yPos);
-        this.ctx.lineTo(xPos, yPos + size);
-        this.ctx.lineTo(xPos + size, yPos + size);
-      }
-      this.ctx.closePath();
+      // 子曰：蛇尾圆润，如珠玉然
+      this.ctx.arc(xPos + size / 2, yPos + size / 2, size / 2, 0, Math.PI * 2);
       this.ctx.fill();
     } else if (type === 'food') {
       if (color === 'life') {
@@ -260,7 +230,8 @@ class Renderer {
       this.ctx.lineTo(xPos + (size * 2) / 3, yPos + size);
       this.ctx.stroke();
     } else {
-      this.ctx.roundRect(xPos, yPos, size, size, 5);
+      // 子曰：蛇身圆润，如珠玉然
+      this.ctx.arc(xPos + size / 2, yPos + size / 2, size / 2, 0, Math.PI * 2);
       this.ctx.fill();
     }
 
@@ -268,10 +239,9 @@ class Renderer {
     if (type !== 'obstacle') {
       this.ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
       this.ctx.beginPath();
-      this.ctx.roundRect(xPos + 2, yPos + 2, size / 2, size / 2, 3);
+      this.ctx.arc(xPos + size / 4, yPos + size / 4, size / 4, 0, Math.PI * 2);
       this.ctx.fill();
     }
-    this.ctx.fill();
   }
 
   // 绘制蛇
