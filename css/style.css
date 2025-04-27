@@ -131,8 +131,9 @@ canvas:hover {
 .mobile-controls {
   display: none;
   position: fixed;
-  right: 20px;
-  bottom: 20px;
+  left: 66%;
+  transform: translateX(-50%);
+  bottom: 100px;
   z-index: 100;
 }
 
@@ -148,8 +149,8 @@ canvas:hover {
 
 .joystick {
   position: absolute;
-  width: 54px;
-  height: 54px;
+  width: 70px;
+  height: 70px;
   background: linear-gradient(145deg, rgba(139, 195, 74, 0.6), rgba(124, 179, 66, 0.6));
   border-radius: 50%;
   top: 50%;

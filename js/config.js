@@ -28,11 +28,39 @@ class GameConfig {
 
   // 计算合适的画布尺寸
   calculateCanvasSize() {
+    const screenWidth = window.innerWidth;
     const screenHeight = window.innerHeight;
-    const maxHeight = screenHeight * 0.8; // 画布高度占屏幕80%
-    const aspectRatio = 2 / 3; // 保持宽高比
-    const height = Math.min(600, maxHeight);
-    const width = height * aspectRatio;
+
+    // 移动设备上使用更小的尺寸
+    const isMobile = screenWidth <= 600;
+
+    // 子曰：移动端屏幕，宜小不宜大，留出边距以避免溢出
+    // 移动端使用更小的比例，确保右侧不会溢出
+    const maxWidth = isMobile ? screenWidth * 0.85 : screenWidth * 0.6;
+    const maxHeight = screenHeight * 0.7; // 画布高度占屏幕70%
+
+    // 保持宽高比，移动端使用更接近正方形的比例
+    const aspectRatio = isMobile ? 3 / 4 : 2 / 3;
+
+    // 先根据高度计算宽度
+    let height = Math.min(600, maxHeight);
+    let width = height * aspectRatio;
+
+    // 如果宽度超出限制，则根据宽度重新计算高度
+    if (width > maxWidth) {
+      width = maxWidth;
+      height = width / aspectRatio;
+    }
+
+    // 确保尺寸为整数，避免小数点导致的溢出问题
+    width = Math.floor(width);
+    height = Math.floor(height);
+
+    // 移动端额外减少几个像素，确保不会出现滚动条
+    if (isMobile) {
+      width -= 4;
+      height -= 4;
+    }
 
     return { width, height };
   }

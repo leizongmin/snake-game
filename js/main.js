@@ -18,6 +18,9 @@ class Game {
 
     // 初始化渲染器
     this.renderer = new Renderer(this.canvas);
+    // 确保设置原始尺寸，解决高DPI屏幕问题
+    this.renderer.originalWidth = canvasSize.width;
+    this.renderer.originalHeight = canvasSize.height;
     this.renderer.init(this.blockSize);
 
     // 初始化音效管理器
@@ -40,8 +43,48 @@ class Game {
     this.init();
   }
 
+  // 处理窗口大小变化
+  handleResize() {
+    // 重新计算画布尺寸
+    const canvasSize = this.config.calculateCanvasSize();
+
+    // 更新渲染器中的原始尺寸
+    this.renderer.originalWidth = canvasSize.width;
+    this.renderer.originalHeight = canvasSize.height;
+
+    // 更新CSS尺寸
+    this.canvas.style.width = canvasSize.width + 'px';
+    this.canvas.style.height = canvasSize.height + 'px';
+
+    // 重新设置高DPI支持
+    this.renderer.setupHiDPI();
+
+    // 重新计算方块大小
+    this.blockSize = this.config.calculateBlockSize(canvasSize.width, canvasSize.height);
+    this.renderer.blockSize = this.blockSize;
+
+    // 更新蛇和游戏对象的画布尺寸
+    this.snake.canvasWidth = canvasSize.width;
+    this.snake.canvasHeight = canvasSize.height;
+    this.snake.blockSize = this.blockSize;
+
+    this.gameObjects.canvasWidth = canvasSize.width;
+    this.gameObjects.canvasHeight = canvasSize.height;
+    this.gameObjects.blockSize = this.blockSize;
+
+    // 重绘当前场景
+    this.gameState.render();
+  }
+
   // 初始化游戏
   init() {
+    // 添加窗口大小变化事件监听
+    window.addEventListener('resize', this.handleResize.bind(this));
+
+    // 确保在移动设备上正确显示
+    if ('ontouchstart' in window || window.innerWidth <= 600) {
+      this.handleResize();
+    }
     // 创建初始食物
     for (let i = 0; i < 3; i++) {
       this.gameObjects.createFood(this.snake);

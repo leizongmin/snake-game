@@ -133,6 +133,32 @@ class GameState {
   getMode() {
     return this.currentMode;
   }
+
+  // 根据当前状态重新渲染游戏界面
+  render() {
+    // 子曰：根据游戏状态，选择合适之绘制方法
+    switch (this.currentState) {
+      case this.config.state.READY:
+        this.renderer.drawStartScreen(this.currentMode, this.config.modes);
+        break;
+      case this.config.state.PLAYING:
+        // 获取当前游戏实例
+        const gameInstance = window.gameInstance;
+        if (gameInstance) {
+          this.renderer.clear();
+          this.renderer.drawObstacles(gameInstance.gameObjects.getObstacles());
+          this.renderer.drawFood(gameInstance.gameObjects.getFood());
+          this.renderer.drawSnake(gameInstance.snake);
+        }
+        break;
+      case this.config.state.PAUSED:
+        this.renderer.drawPauseScreen();
+        break;
+      case this.config.state.OVER:
+        this.renderer.drawGameOverScreen(this.currentMode, this.score);
+        break;
+    }
+  }
 }
 
 // 将类绑定至全局window对象，使其可被访问

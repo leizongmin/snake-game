@@ -244,7 +244,7 @@ class InputController {
     const deltaX = touch.clientX - this.joystickCenterX;
     const deltaY = touch.clientY - this.joystickCenterY;
     const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-    const maxDistance = 50; // 最大移动距离
+    const maxDistance = 70; // 增大最大移动距离，适应更大的摇杆
 
     // 计算摇杆位置
     let moveX = deltaX;

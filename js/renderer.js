@@ -5,6 +5,11 @@ class Renderer {
     this.ctx = canvas.getContext('2d');
     this.blockSize = 0; // 将在初始化时设置
     this.backgroundStyle = 0; // 初始化背景样式
+
+    // 保存原始尺寸，但不立即处理高DPI
+    this.originalWidth = canvas.width;
+    this.originalHeight = canvas.height;
+    this.dpr = window.devicePixelRatio || 1;
   }
 
   // 重置游戏时更新背景样式
@@ -15,16 +20,45 @@ class Renderer {
   // 初始化渲染器
   init(blockSize) {
     this.blockSize = blockSize;
+
+    // 初始化时处理高DPI屏幕
+    this.setupHiDPI();
+  }
+
+  // 设置高DPI屏幕支持
+  setupHiDPI() {
+    // 获取设备像素比
+    const dpr = window.devicePixelRatio || 1;
+
+    // 如果originalWidth和originalHeight未设置，则使用当前画布尺寸
+    if (!this.originalWidth || !this.originalHeight) {
+      this.originalWidth = this.canvas.width;
+      this.originalHeight = this.canvas.height;
+    }
+
+    // 调整画布实际渲染尺寸
+    this.canvas.width = this.originalWidth * dpr;
+    this.canvas.height = this.originalHeight * dpr;
+
+    // 使用CSS保持显示尺寸不变
+    this.canvas.style.width = this.originalWidth + 'px';
+    this.canvas.style.height = this.originalHeight + 'px';
+
+    // 缩放绘图上下文以匹配设备像素比
+    this.ctx.scale(dpr, dpr);
+
+    // 存储设备像素比以便后续使用
+    this.dpr = dpr;
   }
 
   clear() {
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.ctx.clearRect(0, 0, this.originalWidth, this.originalHeight);
 
     // 根据不同样式绘制背景
     switch (this.backgroundStyle) {
       case 0: // 晴空白云
         this.ctx.fillStyle = '#E6F3FF';
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        this.ctx.fillRect(0, 0, this.originalWidth, this.originalHeight);
 
         // 绘制白云
         this.ctx.fillStyle = '#FFFFFF';
@@ -59,13 +93,13 @@ class Renderer {
 
       case 1: // 绿野草地
         this.ctx.fillStyle = '#F1F8E9';
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        this.ctx.fillRect(0, 0, this.originalWidth, this.originalHeight);
 
         // 绘制静止的草丛
         this.ctx.strokeStyle = '#228B22';
         for (let i = 0; i < 50; i++) {
-          const x = (i * this.canvas.width) / 50 + (i % 2) * 10;
-          const y = (Math.floor(i / 10) * this.canvas.height) / 5 + 20;
+          const x = (i * this.originalWidth) / 50 + (i % 2) * 10;
+          const y = (Math.floor(i / 10) * this.originalHeight) / 5 + 20;
           this.ctx.beginPath();
           this.ctx.moveTo(x, y);
           this.ctx.lineTo(x - 5, y - 15);
@@ -77,13 +111,13 @@ class Renderer {
 
       case 2: // 黄沙漫漫
         this.ctx.fillStyle = '#FFF3E0';
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        this.ctx.fillRect(0, 0, this.originalWidth, this.originalHeight);
 
         // 绘制静止的沙纹
         this.ctx.strokeStyle = '#DEB887';
         for (let i = 0; i < 30; i++) {
-          const x = (i % 6) * (this.canvas.width / 6) + 30;
-          const y = Math.floor(i / 6) * (this.canvas.height / 5) + 30;
+          const x = (i % 6) * (this.originalWidth / 6) + 30;
+          const y = Math.floor(i / 6) * (this.originalHeight / 5) + 30;
           this.ctx.beginPath();
           this.ctx.arc(x, y, 20, 0, Math.PI * 2);
           this.ctx.stroke();
@@ -91,30 +125,30 @@ class Renderer {
         break;
 
       case 3: // 碧海蓝天
-        const seaGradient = this.ctx.createLinearGradient(0, 0, 0, this.canvas.height);
+        const seaGradient = this.ctx.createLinearGradient(0, 0, 0, this.originalHeight);
         seaGradient.addColorStop(0, '#87CEEB');
         seaGradient.addColorStop(1, '#1E90FF');
         this.ctx.fillStyle = seaGradient;
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        this.ctx.fillRect(0, 0, this.originalWidth, this.originalHeight);
 
         // 绘制静止的海浪纹理
         this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
         for (let i = 0; i < 5; i++) {
           this.ctx.beginPath();
-          this.ctx.moveTo(0, this.canvas.height - 30 * i);
-          this.ctx.lineTo(this.canvas.width, this.canvas.height - 30 * i);
+          this.ctx.moveTo(0, this.originalHeight - 30 * i);
+          this.ctx.lineTo(this.originalWidth, this.originalHeight - 30 * i);
           this.ctx.stroke();
         }
         break;
 
       case 4: // 森林幽境
         this.ctx.fillStyle = '#E8F5E9';
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        this.ctx.fillRect(0, 0, this.originalWidth, this.originalHeight);
 
         // 绘制树木
         for (let i = 0; i < 15; i++) {
-          const x = (i % 5) * (this.canvas.width / 5) + 40;
-          const y = Math.floor(i / 5) * (this.canvas.height / 3) + 40;
+          const x = (i % 5) * (this.originalWidth / 5) + 40;
+          const y = Math.floor(i / 5) * (this.originalHeight / 3) + 40;
 
           // 树干
           this.ctx.fillStyle = '#D2B48C';
@@ -130,23 +164,23 @@ class Renderer {
 
       case 5: // 竹林深处
         this.ctx.fillStyle = '#E8F5E9';
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        this.ctx.fillRect(0, 0, this.originalWidth, this.originalHeight);
 
         // 绘制竹子
         for (let i = 0; i < 8; i++) {
-          const x = (i * this.canvas.width) / 8 + 10;
+          const x = (i * this.originalWidth) / 8 + 10;
 
           // 竹竿
           this.ctx.strokeStyle = '#98FB98';
           this.ctx.lineWidth = 8;
           this.ctx.beginPath();
           this.ctx.moveTo(x, 0);
-          this.ctx.lineTo(x, this.canvas.height);
+          this.ctx.lineTo(x, this.originalHeight);
           this.ctx.stroke();
 
           // 竹节
           for (let j = 0; j < 8; j++) {
-            const y = (j * this.canvas.height) / 8;
+            const y = (j * this.originalHeight) / 8;
             this.ctx.strokeStyle = '#90EE90';
             this.ctx.lineWidth = 2;
             this.ctx.beginPath();
@@ -449,81 +483,81 @@ class Renderer {
     this.ctx.font = '36px 楷体';
     this.ctx.fillStyle = '#2c3e50';
     this.ctx.textAlign = 'center';
-    this.ctx.fillText('贪食蛇戏', this.canvas.width / 2, this.canvas.height / 2 - 100);
+    this.ctx.fillText('贪食蛇戏', this.originalWidth / 2, this.originalHeight / 2 - 100);
 
     // 绘制模式选择
     this.ctx.font = '24px 楷体';
     this.ctx.fillStyle = '#666';
     Object.values(modes).forEach((mode, index) => {
-      const y = this.canvas.height / 2 - 40 + index * 40;
+      const y = this.originalHeight / 2 - 40 + index * 40;
       const isSelected = mode === currentMode;
 
       // 绘制选择框
       this.ctx.strokeStyle = isSelected ? '#4CAF50' : '#666';
       this.ctx.lineWidth = isSelected ? 2 : 1;
       this.ctx.beginPath();
-      this.ctx.roundRect(this.canvas.width / 2 - 80, y - 25, 160, 35, 5);
+      this.ctx.roundRect(this.originalWidth / 2 - 80, y - 25, 160, 35, 5);
       this.ctx.stroke();
 
       // 绘制模式名称
       this.ctx.fillStyle = isSelected ? '#4CAF50' : '#666';
-      this.ctx.fillText(mode.name, this.canvas.width / 2, y);
+      this.ctx.fillText(mode.name, this.originalWidth / 2, y);
     });
 
     // 绘制提示
     this.ctx.font = '20px 楷体';
     this.ctx.fillStyle = '#666';
     if (window.innerWidth <= 600) {
-      this.ctx.fillText('点击选择模式并开始', this.canvas.width / 2, this.canvas.height / 2 + 120);
+      this.ctx.fillText('点击选择模式并开始', this.originalWidth / 2, this.originalHeight / 2 + 120);
     } else {
-      this.ctx.fillText('按上下键选择模式，空格键开始', this.canvas.width / 2, this.canvas.height / 2 + 120);
+      this.ctx.fillText('按上下键选择模式，空格键开始', this.originalWidth / 2, this.originalHeight / 2 + 120);
     }
   }
 
   // 绘制暂停界面
   drawPauseScreen() {
     this.ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    this.ctx.fillRect(0, 0, this.originalWidth, this.originalHeight);
 
     this.ctx.font = '36px 楷体';
     this.ctx.fillStyle = 'white';
     this.ctx.textAlign = 'center';
-    this.ctx.fillText('游戏暂停', this.canvas.width / 2, this.canvas.height / 2);
+    this.ctx.fillText('游戏暂停', this.originalWidth / 2, this.originalHeight / 2);
 
     this.ctx.font = '24px 楷体';
-    this.ctx.fillText('按空格键继续', this.canvas.width / 2, this.canvas.height / 2 + 40);
+    this.ctx.fillText('按空格键继续', this.originalWidth / 2, this.originalHeight / 2 + 40);
   }
 
   // 绘制游戏结束界面
   drawGameOverScreen(currentMode, score) {
     this.ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    this.ctx.fillRect(0, 0, this.originalWidth, this.originalHeight);
 
     // 绘制标题
     this.ctx.font = '48px 楷体';
     this.ctx.fillStyle = '#FF5252';
     this.ctx.textAlign = 'center';
-    this.ctx.fillText('游戏结束', this.canvas.width / 2, this.canvas.height / 2 - 80);
+    this.ctx.fillText('游戏结束', this.originalWidth / 2, this.originalHeight / 2 - 80);
 
     // 绘制模式和得分
     this.ctx.font = '24px 楷体';
     this.ctx.fillStyle = 'white';
-    this.ctx.fillText(`模式：${currentMode.name}`, this.canvas.width / 2, this.canvas.height / 2 - 30);
-    this.ctx.fillText(`最终得分：${score}`, this.canvas.width / 2, this.canvas.height / 2 + 10);
+    this.ctx.fillText(`模式：${currentMode.name}`, this.originalWidth / 2, this.originalHeight / 2 - 30);
+    this.ctx.fillText(`最终得分：${score}`, this.originalWidth / 2, this.originalHeight / 2 + 10);
 
     // 绘制提示
     this.ctx.font = '20px 楷体';
     if (window.innerWidth <= 600) {
-      this.ctx.fillText('点击重新开始', this.canvas.width / 2, this.canvas.height / 2 + 60);
+      this.ctx.fillText('点击重新开始', this.originalWidth / 2, this.originalHeight / 2 + 60);
     } else {
-      this.ctx.fillText('按空格键重新开始', this.canvas.width / 2, this.canvas.height / 2 + 60);
+      this.ctx.fillText('按空格键重新开始', this.originalWidth / 2, this.originalHeight / 2 + 60);
     }
 
     // 绘制装饰
     this.ctx.strokeStyle = '#FF5252';
     this.ctx.lineWidth = 2;
     this.ctx.beginPath();
-    this.ctx.roundRect(this.canvas.width / 2 - 120, this.canvas.height / 2 - 100, 240, 200, 10);
+    this.ctx.roundRect(this.originalWidth / 2 - 120, this.originalHeight / 2 - 100, 240, 200, 10);
     this.ctx.stroke();
   }
 
