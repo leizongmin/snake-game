@@ -4,10 +4,10 @@ class Renderer {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d');
     this.blockSize = 0; // 将在初始化时设置
-    this.backgroundStyle = 0; // 子曰：初始化背景样式
+    this.backgroundStyle = 0; // 初始化背景样式
   }
 
-  // 子曰：重置游戏时更新背景样式
+  // 重置游戏时更新背景样式
   resetBackground() {
     this.backgroundStyle = Math.floor(Math.random() * 6);
   }
@@ -20,13 +20,13 @@ class Renderer {
   clear() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-    // 子曰：根据不同样式绘制背景
+    // 根据不同样式绘制背景
     switch (this.backgroundStyle) {
-      case 0: // 子曰：晴空白云
+      case 0: // 晴空白云
         this.ctx.fillStyle = '#E6F3FF';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-        // 子曰：绘制白云
+        // 绘制白云
         this.ctx.fillStyle = '#FFFFFF';
         const cloudPositions = [
           { x: 50, y: 50 },
@@ -40,7 +40,7 @@ class Renderer {
         ];
 
         for (const pos of cloudPositions) {
-          // 子曰：绘制花瓣状白云
+          // 绘制花瓣状白云
           for (let j = 0; j < 5; j++) {
             this.ctx.beginPath();
             const angle = (j / 5) * Math.PI * 2;
@@ -50,18 +50,18 @@ class Renderer {
             this.ctx.fill();
           }
 
-          // 子曰：绘制云朵中心
+          // 绘制云朵中心
           this.ctx.beginPath();
           this.ctx.arc(pos.x, pos.y, 25, 0, Math.PI * 2);
           this.ctx.fill();
         }
         break;
 
-      case 1: // 子曰：绿野草地
+      case 1: // 绿野草地
         this.ctx.fillStyle = '#F1F8E9';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-        // 子曰：绘制静止的草丛
+        // 绘制静止的草丛
         this.ctx.strokeStyle = '#228B22';
         for (let i = 0; i < 50; i++) {
           const x = (i * this.canvas.width) / 50 + (i % 2) * 10;
@@ -75,11 +75,11 @@ class Renderer {
         }
         break;
 
-      case 2: // 子曰：黄沙漫漫
+      case 2: // 黄沙漫漫
         this.ctx.fillStyle = '#FFF3E0';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-        // 子曰：绘制静止的沙纹
+        // 绘制静止的沙纹
         this.ctx.strokeStyle = '#DEB887';
         for (let i = 0; i < 30; i++) {
           const x = (i % 6) * (this.canvas.width / 6) + 30;
@@ -90,14 +90,14 @@ class Renderer {
         }
         break;
 
-      case 3: // 子曰：碧海蓝天
+      case 3: // 碧海蓝天
         const seaGradient = this.ctx.createLinearGradient(0, 0, 0, this.canvas.height);
         seaGradient.addColorStop(0, '#87CEEB');
         seaGradient.addColorStop(1, '#1E90FF');
         this.ctx.fillStyle = seaGradient;
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-        // 子曰：绘制静止的海浪纹理
+        // 绘制静止的海浪纹理
         this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
         for (let i = 0; i < 5; i++) {
           this.ctx.beginPath();
@@ -107,11 +107,11 @@ class Renderer {
         }
         break;
 
-      case 4: // 子曰：森林幽境
+      case 4: // 森林幽境
         this.ctx.fillStyle = '#E8F5E9';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-        // 子曰：绘制树木
+        // 绘制树木
         for (let i = 0; i < 15; i++) {
           const x = (i % 5) * (this.canvas.width / 5) + 40;
           const y = Math.floor(i / 5) * (this.canvas.height / 3) + 40;
@@ -128,11 +128,11 @@ class Renderer {
         }
         break;
 
-      case 5: // 子曰：竹林深处
+      case 5: // 竹林深处
         this.ctx.fillStyle = '#E8F5E9';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-        // 子曰：绘制竹子
+        // 绘制竹子
         for (let i = 0; i < 8; i++) {
           const x = (i * this.canvas.width) / 8 + 10;
 
@@ -159,7 +159,7 @@ class Renderer {
     }
   }
 
-  // 子曰：绘制祥云
+  // 绘制祥云
   drawCloud(x, y, size) {
     this.ctx.beginPath();
     this.ctx.moveTo(x, y);
@@ -171,7 +171,7 @@ class Renderer {
   }
 
   // 绘制方块 - 基础绘制单元
-  // 子曰：绘制苹果
+  // 绘制苹果
   drawApple(x, y, size) {
     // 苹果主体
     this.ctx.fillStyle = '#FF1744';
@@ -186,7 +186,7 @@ class Renderer {
     this.ctx.fill();
   }
 
-  // 子曰：绘制番茄
+  // 绘制番茄
   drawTomato(x, y, size) {
     // 番茄主体
     this.ctx.fillStyle = '#FF3D00';
@@ -203,7 +203,7 @@ class Renderer {
     this.ctx.fill();
   }
 
-  // 子曰：绘制土豆
+  // 绘制土豆
   drawPotato(x, y, size) {
     // 土豆主体
     this.ctx.fillStyle = '#FFD600';
@@ -219,7 +219,7 @@ class Renderer {
     this.ctx.fill();
   }
 
-  // 子曰：绘制香蕉
+  // 绘制香蕉
   drawBanana(x, y, size) {
     // 香蕉主体
     this.ctx.fillStyle = '#FFEA00';
@@ -235,7 +235,7 @@ class Renderer {
     this.ctx.stroke();
   }
 
-  // 子曰：绘制生命之果
+  // 绘制生命之果
   drawLifeFruit(x, y, size) {
     const time = Date.now() / 300; // 加快闪烁速度
     const alpha = 0.5 + 0.5 * Math.sin(time); // 增加透明度变化范围
@@ -288,23 +288,23 @@ class Renderer {
     const xPos = x * this.blockSize;
     const yPos = y * this.blockSize;
 
-    // 子曰：绘制基本形状
+    // 绘制基本形状
     this.ctx.fillStyle = color;
     this.ctx.beginPath();
 
     if (type === 'head') {
-      // 子曰：蛇头圆润，眼睛明亮
+      // 蛇头圆润，眼睛明亮
       this.ctx.arc(xPos + size / 2, yPos + size / 2, size / 2, 0, Math.PI * 2);
       this.ctx.fill();
 
-      // 子曰：计算眼睛位置
+      // 计算眼睛位置
       const segments = snake.segments;
       const head = segments[0];
       const neck = segments[1];
       const dx = head.x - neck.x;
       const dy = head.y - neck.y;
 
-      // 子曰：添加眼睛
+      // 添加眼睛
       const eyeSize = size / 6;
       this.ctx.fillStyle = 'white';
       this.ctx.beginPath();
@@ -327,7 +327,7 @@ class Renderer {
       }
       this.ctx.fill();
 
-      // 子曰：眼珠乌黑
+      // 眼珠乌黑
       this.ctx.fillStyle = 'black';
       this.ctx.beginPath();
       if (dx > 0) {
@@ -349,26 +349,26 @@ class Renderer {
       }
       this.ctx.fill();
     } else if (type === 'tail') {
-      // 子曰：蛇尾圆润，如珠玉然
+      // 蛇尾圆润，如珠玉然
       this.ctx.arc(xPos + size / 2, yPos + size / 2, size / 2, 0, Math.PI * 2);
       this.ctx.fill();
     } else if (type === 'food') {
       if (color === 'life') {
-        // 子曰：绘制生命之果
+        // 绘制生命之果
         this.drawLifeFruit(xPos, yPos, size);
       } else {
-        // 子曰：食物形状多变
+        // 食物形状多变
         const foodTypes = [this.drawApple.bind(this), this.drawTomato.bind(this), this.drawPotato.bind(this), this.drawBanana.bind(this)];
         const foodIndex = Math.floor(x * y) % foodTypes.length;
         foodTypes[foodIndex](xPos, yPos, size);
       }
     } else if (type === 'obstacle') {
-      // 子曰：砖石方正
+      // 砖石方正
       this.ctx.beginPath();
       this.ctx.rect(xPos, yPos, size, size);
       this.ctx.fill();
 
-      // 子曰：砖纹清晰
+      // 砖纹清晰
       this.ctx.strokeStyle = 'rgba(0, 0, 0, 0.2)';
       this.ctx.beginPath();
       // 横纹
@@ -383,12 +383,12 @@ class Renderer {
       this.ctx.lineTo(xPos + (size * 2) / 3, yPos + size);
       this.ctx.stroke();
     } else {
-      // 子曰：蛇身圆润，如珠玉然
+      // 蛇身圆润，如珠玉然
       this.ctx.arc(xPos + size / 2, yPos + size / 2, size / 2, 0, Math.PI * 2);
       this.ctx.fill();
     }
 
-    // 子曰：添加光泽
+    // 添加光泽
     if (type !== 'obstacle') {
       this.ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
       this.ctx.beginPath();
@@ -406,7 +406,7 @@ class Renderer {
       return;
     }
 
-    // 子曰：若处于无敌状态，则使蛇身闪烁
+    // 若处于无敌状态，则使蛇身闪烁
     const alpha = snake.invincible ? Math.sin(Date.now() / 100) * 0.5 + 0.5 : 1;
     this.ctx.globalAlpha = alpha;
 
@@ -422,13 +422,13 @@ class Renderer {
       this.drawRect(tail.x, tail.y, '#4CAF50', 'tail', snake);
     }
 
-    // 子曰：恢复透明度
+    // 恢复透明度
     this.ctx.globalAlpha = 1;
   }
 
   // 绘制食物
   drawFood(foods) {
-    // 子曰：遍历食物数组，逐一绘制
+    // 遍历食物数组，逐一绘制
     foods.forEach(food => {
       this.drawRect(food.x, food.y, food.type || null, 'food');
     });

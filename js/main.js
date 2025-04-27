@@ -42,7 +42,7 @@ class Game {
 
   // 初始化游戏
   init() {
-    // 子曰：创建初始食物
+    // 创建初始食物
     for (let i = 0; i < 3; i++) {
       this.gameObjects.createFood(this.snake);
     }
@@ -66,7 +66,7 @@ class Game {
       const mode = this.gameState.getMode();
       this.gameObjects.reset(this.snake, mode.zhangCount);
 
-      // 子曰：更换画布风格
+      // 更换画布风格
       this.renderer.resetBackground();
 
       // 重置食物计数器
@@ -129,7 +129,7 @@ class Game {
           return;
         }
 
-        // 子曰：若蛇吃到食物，则生成新食物
+        // 若蛇吃到食物，则生成新食物
         if (result.ate) {
           // 更新分数
           this.gameState.updateScore();
@@ -232,7 +232,7 @@ class Game {
             }, 200); // 200毫秒间隔，产生明显闪烁效果
           }
 
-          // 子曰：此处已在前文生成新食物，无需重复
+          // 此处已在前文生成新食物，无需重复
         }
 
         // 绘制游戏元素

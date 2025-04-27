@@ -145,7 +145,7 @@ class InputController {
     this.touchStartX = e.touches[0].clientX;
     this.touchStartY = e.touches[0].clientY;
 
-    // 子曰：记录摇杆初始位置
+    // 记录摇杆初始位置
     if (e.target.classList.contains('joystick')) {
       const joystick = e.target;
       const container = joystick.parentElement;
@@ -167,7 +167,7 @@ class InputController {
       const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
       const maxDistance = 50; // 最大移动距离
 
-      // 子曰：计算摇杆位置
+      // 计算摇杆位置
       let moveX = deltaX;
       let moveY = deltaY;
       if (distance > maxDistance) {
@@ -176,11 +176,11 @@ class InputController {
         moveY *= scale;
       }
 
-      // 子曰：更新摇杆位置
+      // 更新摇杆位置
       const joystick = e.target;
       joystick.style.transform = `translate(calc(-50% + ${moveX}px), calc(-50% + ${moveY}px))`;
 
-      // 子曰：根据角度设置移动方向
+      // 根据角度设置移动方向
       const angle = (Math.atan2(deltaY, deltaX) * 180) / Math.PI;
       if (angle > -135 && angle <= -45) {
         this.snake.setDirection('up');
@@ -200,7 +200,7 @@ class InputController {
     const touchEndX = e.changedTouches[0].clientX;
     const touchEndY = e.changedTouches[0].clientY;
 
-    // 子曰：若为摇杆操作，则归位
+    // 若为摇杆操作，则归位
     if (this.isJoystickActive) {
       const joystick = document.querySelector('.joystick');
       joystick.style.transform = 'translate(-50%, -50%)';
@@ -208,18 +208,18 @@ class InputController {
       return;
     }
 
-    // 子曰：判断是否为点击事件（触摸开始和结束位置接近）
+    // 判断是否为点击事件（触摸开始和结束位置接近）
     const deltaX = touchEndX - this.touchStartX;
     const deltaY = touchEndY - this.touchStartY;
     const touchDistance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 
-    // 子曰：若触摸距离小于10像素，视为点击事件
+    // 若触摸距离小于10像素，视为点击事件
     if (touchDistance < 10) {
       const state = this.gameState.getState();
       const config = this.gameState.config;
 
       if (state === config.state.OVER) {
-        // 子曰：游戏结束时，确保点击事件能正确重启游戏
+        // 游戏结束时，确保点击事件能正确重启游戏
         if (window.gameInstance && window.gameInstance.snake) {
           this.gameState.startGame(window.gameInstance.snake);
         }

@@ -14,41 +14,41 @@ class GameObjects {
 
   // 创建食物
   createFood(snake) {
-    // 子曰：清理已被蛇吞之食物
+    // 清理已被蛇吞之食物
     this.foods = this.foods.filter(food => !this.isOnSnake(food, snake));
 
-    // 子曰：计算所需食物数量
+    // 计算所需食物数量
     const targetFoodCount = Math.floor(Math.random() * 5) + 1;
 
-    // 子曰：若食物不足，则继续生成
+    // 若食物不足，则继续生成
     while (this.foods.length < targetFoodCount) {
-      // 子曰：寻找可用之格子
+      // 寻找可用之格子
       const maxX = this.canvasWidth / this.blockSize;
       const maxY = this.canvasHeight / this.blockSize;
       const available = [];
       for (let x = 0; x < maxX; x++) {
         for (let y = 0; y < maxY; y++) {
-          // 子曰：若格子不在蛇身、障碍物及现有食物上，则可用
+          // 若格子不在蛇身、障碍物及现有食物上，则可用
           if (!this.isOnSnake({ x, y }, snake) && !this.isOnObstacle({ x, y }) && !this.foods.some(food => food.x === x && food.y === y)) {
             available.push({ x, y });
           }
         }
       }
 
-      // 子曰：若无可用格，则跳出循环
+      // 若无可用格，则跳出循环
       if (available.length === 0) {
         break;
       }
 
-      // 子曰：随机选取一格生成新食物
+      // 随机选取一格生成新食物
       const idx = Math.floor(Math.random() * available.length);
       const food = available[idx];
 
-      // 子曰：随机生成增加生命值之食物，概率为五分之一
+      // 随机生成增加生命值之食物，概率为五分之一
       food.type = Math.random() < 0.2 ? 'life' : 'normal';
       this.foods.push(food);
 
-      // 子曰：从可用格子中移除已用之格
+      // 从可用格子中移除已用之格
       available.splice(idx, 1);
     }
 
@@ -75,7 +75,7 @@ class GameObjects {
           break;
         }
 
-        // 子曰：检查是否在蛇头前进方向的5格范围内
+        // 检查是否在蛇头前进方向的5格范围内
         const head = snake.segments[0];
         inDangerZone = (() => {
           switch (snake.direction) {

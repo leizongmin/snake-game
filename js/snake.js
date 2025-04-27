@@ -17,10 +17,10 @@ class Snake {
     this.direction = 'right';
     this.nextDirection = 0; // 待行方向
 
-    // 子曰：初始生命值
+    // 初始生命值
     this.lives = 1;
 
-    // 子曰：无敌状态
+    // 无敌状态
     this.invincible = false;
     this.invincibleTimer = null;
     this.invincibleDuration = 2000; // 无敌时间2秒
@@ -36,10 +36,10 @@ class Snake {
     this.direction = 'right';
     this.nextDirection = 0;
 
-    // 子曰：重置生命值
+    // 重置生命值
     this.lives = 1;
 
-    // 子曰：重置无敌状态
+    // 重置无敌状态
     this.invincible = false;
     if (this.invincibleTimer) {
       clearTimeout(this.invincibleTimer);
@@ -106,7 +106,7 @@ class Snake {
         break;
     }
 
-    // 子曰：检查是否撞墙
+    // 检查是否撞墙
     if (head.x < 0 || head.x >= this.canvasWidth / this.blockSize || head.y < 0 || head.y >= this.canvasHeight / this.blockSize) {
       if (!this.invincible) {
         this.lives--;
@@ -118,7 +118,7 @@ class Snake {
       return result;
     }
 
-    // 子曰：检查是否撞到障碍物
+    // 检查是否撞到障碍物
     if (obstacles && obstacles.some(o => o.x === head.x && o.y === head.y)) {
       if (!this.invincible) {
         this.lives--;
@@ -130,7 +130,7 @@ class Snake {
       return result;
     }
 
-    // 子曰：检查是否撞到自己
+    // 检查是否撞到自己
     if (this.segments.some(segment => segment.x === head.x && segment.y === head.y)) {
       if (!this.invincible) {
         this.lives--;
@@ -142,16 +142,16 @@ class Snake {
       return result;
     }
 
-    // 子曰：检查是否吃到食物
+    // 检查是否吃到食物
     const eatenFood = food.find(f => f.x === head.x && f.y === head.y);
     if (eatenFood) {
       result.ate = true;
-      // 子曰：若食用生命之果，则增加生命值，不超十
+      // 若食用生命之果，则增加生命值，不超十
       if (eatenFood.type === 'life' && this.lives < 10) {
         this.lives++;
       }
     } else {
-      // 子曰：若未食，则去尾
+      // 若未食，则去尾
       this.segments.pop();
     }
 
@@ -171,7 +171,7 @@ class Snake {
     return obstacles.some(obstacle => obstacle.x === pos.x && obstacle.y === pos.y);
   }
 
-  // 子曰：开启无敌状态
+  // 开启无敌状态
   startInvincibility() {
     this.invincible = true;
     if (this.invincibleTimer) {
