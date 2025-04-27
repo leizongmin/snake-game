@@ -12,6 +12,40 @@ class GameObjects {
     this.obstacles = [];
   }
 
+  // 获取所有可用格子
+  getAvailablePositions(snake) {
+    const maxX = this.canvasWidth / this.blockSize;
+    const maxY = this.canvasHeight / this.blockSize;
+    const positions = new Set();
+
+    // 生成所有位置的字符串表示
+    for (let x = 0; x < maxX; x++) {
+      for (let y = 0; y < maxY; y++) {
+        positions.add(`${x},${y}`);
+      }
+    }
+
+    // 移除蛇身位置
+    snake.segments.forEach(segment => {
+      positions.delete(`${segment.x},${segment.y}`);
+    });
+
+    // 移除障碍物位置
+    this.obstacles.forEach(obstacle => {
+      positions.delete(`${obstacle.x},${obstacle.y}`);
+    });
+
+    // 移除现有食物位置
+    this.foods.forEach(food => {
+      positions.delete(`${food.x},${food.y}`);
+    });
+
+    return Array.from(positions).map(pos => {
+      const [x, y] = pos.split(',').map(Number);
+      return { x, y };
+    });
+  }
+
   // 创建食物
   createFood(snake) {
     // 清理已被蛇吞之食物
@@ -20,27 +54,17 @@ class GameObjects {
     // 计算所需食物数量
     const targetFoodCount = Math.floor(Math.random() * 5) + 1;
 
-    // 若食物不足，则继续生成
-    while (this.foods.length < targetFoodCount) {
-      // 寻找可用之格子
-      const maxX = this.canvasWidth / this.blockSize;
-      const maxY = this.canvasHeight / this.blockSize;
-      const available = [];
-      for (let x = 0; x < maxX; x++) {
-        for (let y = 0; y < maxY; y++) {
-          // 若格子不在蛇身、障碍物及现有食物上，则可用
-          if (!this.isOnSnake({ x, y }, snake) && !this.isOnObstacle({ x, y }) && !this.foods.some(food => food.x === x && food.y === y)) {
-            available.push({ x, y });
-          }
-        }
-      }
+    // 获取所有可用位置
+    const available = this.getAvailablePositions(snake);
 
-      // 若无可用格，则跳出循环
-      if (available.length === 0) {
-        break;
-      }
+    // 若无可用格，则直接返回
+    if (available.length === 0) {
+      return this.foods;
+    }
 
-      // 随机选取一格生成新食物
+    // 生成所需数量的食物
+    while (this.foods.length < targetFoodCount && available.length > 0) {
+      // 随机选取一个位置
       const idx = Math.floor(Math.random() * available.length);
       const food = available[idx];
 
@@ -48,59 +72,61 @@ class GameObjects {
       food.type = Math.random() < 0.2 ? 'life' : 'normal';
       this.foods.push(food);
 
-      // 从可用格子中移除已用之格
+      // 从可用位置中移除已用之格
       available.splice(idx, 1);
     }
 
     return this.foods;
   }
 
+  // 判断位置是否在蛇头前方的危险区域内
+  isInDangerZone(pos, snake) {
+    const head = snake.segments[0];
+    const dangerRange = 5;
+
+    switch (snake.direction) {
+      case 'right':
+        return pos.x > head.x && pos.x <= head.x + dangerRange && pos.y === head.y;
+      case 'left':
+        return pos.x < head.x && pos.x >= head.x - dangerRange && pos.y === head.y;
+      case 'up':
+        return pos.y < head.y && pos.y >= head.y - dangerRange && pos.x === head.x;
+      case 'down':
+        return pos.y > head.y && pos.y <= head.y + dangerRange && pos.x === head.x;
+      default:
+        return false;
+    }
+  }
+
   // 创建障碍物
   createObstacles(count, snake) {
     this.obstacles = [];
-    for (let i = 0; i < count; i++) {
-      let obstacle;
-      let attempts = 0;
-      const maxAttempts = 1000;
-      const maxX = this.canvasWidth / this.blockSize;
-      const maxY = this.canvasHeight / this.blockSize;
-      let inDangerZone;
-      do {
-        obstacle = {
-          x: Math.floor(Math.random() * maxX),
-          y: Math.floor(Math.random() * maxY),
-        };
-        attempts++;
-        if (attempts > maxAttempts) {
-          break;
-        }
 
-        // 检查是否在蛇头前进方向的5格范围内
-        const head = snake.segments[0];
-        inDangerZone = (() => {
-          switch (snake.direction) {
-            case 'right':
-              return obstacle.x > head.x && obstacle.x <= head.x + 5 && obstacle.y === head.y;
-            case 'left':
-              return obstacle.x < head.x && obstacle.x >= head.x - 5 && obstacle.y === head.y;
-            case 'up':
-              return obstacle.y < head.y && obstacle.y >= head.y - 5 && obstacle.x === head.x;
-            case 'down':
-              return obstacle.y > head.y && obstacle.y <= head.y + 5 && obstacle.x === head.x;
-            default:
-              return false;
-          }
-        })();
-      } while (
-        this.isOnSnake(obstacle, snake) ||
-        this.isOnObstacle(obstacle) ||
-        this.foods.some(food => food.x === obstacle.x && food.y === obstacle.y) ||
-        inDangerZone
-      );
-      if (attempts <= maxAttempts) {
-        this.obstacles.push(obstacle);
-      }
+    // 获取所有可用位置
+    const available = this.getAvailablePositions(snake);
+
+    // 过滤掉危险区域
+    const safePositions = available.filter(pos => !this.isInDangerZone(pos, snake));
+
+    // 若无安全位置，则返回空数组
+    if (safePositions.length === 0) {
+      return this.obstacles;
     }
+
+    // 生成指定数量的障碍物
+    const obstacleCount = Math.min(count, safePositions.length);
+    for (let i = 0; i < obstacleCount; i++) {
+      // 随机选择一个安全位置
+      const idx = Math.floor(Math.random() * safePositions.length);
+      const obstacle = safePositions[idx];
+
+      // 添加到障碍物数组
+      this.obstacles.push(obstacle);
+
+      // 从安全位置数组中移除已用位置
+      safePositions.splice(idx, 1);
+    }
+
     return this.obstacles;
   }
 
