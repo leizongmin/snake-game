@@ -23,10 +23,10 @@ class GameConfig {
 
   // 根据画布尺寸计算方块大小
   calculateBlockSize(canvasWidth, canvasHeight) {
-    const blockSize = Math.floor(canvasWidth / 20);
-    const gridWidth = Math.floor(canvasWidth / blockSize);
-    const gridHeight = Math.floor(canvasHeight / blockSize);
-    console.log(`画布方格数量: ${gridWidth}x${gridHeight}, 每格尺寸: ${blockSize}px`);
+    const blockSizeFromWidth = Math.floor(canvasWidth / 20);
+    const blockSizeFromHeight = Math.floor(canvasHeight / 26);
+    const blockSize = Math.min(blockSizeFromWidth, blockSizeFromHeight);
+    console.log(`画布方格数量: 20x26, 每格尺寸: ${blockSize}px`);
     return blockSize;
   }
 
@@ -43,8 +43,8 @@ class GameConfig {
     const maxWidth = isMobile ? screenWidth * 0.85 : screenWidth * 0.6;
     const maxHeight = screenHeight * 0.7; // 画布高度占屏幕70%
 
-    // 保持宽高比为四分之三
-    const aspectRatio = 3 / 4;
+    // 保持宽高比为20:26
+    const aspectRatio = 20 / 26;
 
     // 先根据高度计算宽度
     let height = Math.min(600, maxHeight);
