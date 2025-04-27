@@ -318,7 +318,10 @@ class Renderer {
   }
 
   drawRect(x, y, color, type = 'default', snake = null) {
-    const size = this.blockSize - 2;
+    // 判断是否为移动设备
+    const isMobile = window.innerWidth <= 600;
+    // 移动端减小2像素，PC端保持原样
+    const size = isMobile ? (this.blockSize - 2) : this.blockSize;
     const xPos = x * this.blockSize;
     const yPos = y * this.blockSize;
 

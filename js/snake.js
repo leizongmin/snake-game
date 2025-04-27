@@ -158,6 +158,9 @@ class Snake {
     // 在头部添加新的位置
     this.segments.unshift(head);
 
+    // 打印蛇头位置
+    console.log(`蛇头位置: (${head.x}, ${head.y})`);
+
     return result;
   }
 
