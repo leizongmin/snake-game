@@ -18,6 +18,16 @@ class InputController {
   init(canvas) {
     this.canvas = canvas;
     this.bindEvents();
+
+    // 获取摇杆元素并直接绑定事件
+    this.joystickElement = document.querySelector('.joystick');
+    this.joystickContainer = document.querySelector('.joystick-container');
+
+    if (this.joystickElement) {
+      this.joystickElement.addEventListener('touchstart', this.handleJoystickStart.bind(this));
+      this.joystickElement.addEventListener('touchmove', this.handleJoystickMove.bind(this));
+      this.joystickElement.addEventListener('touchend', this.handleJoystickEnd.bind(this));
+    }
   }
 
   // 绑定事件
@@ -144,54 +154,11 @@ class InputController {
     e.preventDefault();
     this.touchStartX = e.touches[0].clientX;
     this.touchStartY = e.touches[0].clientY;
-
-    // 记录摇杆初始位置
-    if (e.target.classList.contains('joystick')) {
-      const joystick = e.target;
-      const container = joystick.parentElement;
-      const rect = container.getBoundingClientRect();
-      this.joystickCenterX = rect.left + rect.width / 2;
-      this.joystickCenterY = rect.top + rect.height / 2;
-      this.isJoystickActive = true;
-    }
   }
 
   // 处理触摸移动事件
   handleTouchMove(e) {
     e.preventDefault();
-
-    if (this.isJoystickActive) {
-      const touch = e.touches[0];
-      const deltaX = touch.clientX - this.joystickCenterX;
-      const deltaY = touch.clientY - this.joystickCenterY;
-      const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-      const maxDistance = 50; // 最大移动距离
-
-      // 计算摇杆位置
-      let moveX = deltaX;
-      let moveY = deltaY;
-      if (distance > maxDistance) {
-        const scale = maxDistance / distance;
-        moveX *= scale;
-        moveY *= scale;
-      }
-
-      // 更新摇杆位置
-      const joystick = e.target;
-      joystick.style.transform = `translate(calc(-50% + ${moveX}px), calc(-50% + ${moveY}px))`;
-
-      // 根据角度设置移动方向
-      const angle = (Math.atan2(deltaY, deltaX) * 180) / Math.PI;
-      if (angle > -135 && angle <= -45) {
-        this.snake.setDirection('up');
-      } else if (angle > -45 && angle <= 45) {
-        this.snake.setDirection('right');
-      } else if (angle > 45 && angle <= 135) {
-        this.snake.setDirection('down');
-      } else {
-        this.snake.setDirection('left');
-      }
-    }
   }
 
   // 处理触摸结束事件
@@ -199,14 +166,6 @@ class InputController {
     e.preventDefault();
     const touchEndX = e.changedTouches[0].clientX;
     const touchEndY = e.changedTouches[0].clientY;
-
-    // 若为摇杆操作，则归位
-    if (this.isJoystickActive) {
-      const joystick = document.querySelector('.joystick');
-      joystick.style.transform = 'translate(-50%, -50%)';
-      this.isJoystickActive = false;
-      return;
-    }
 
     // 判断是否为点击事件（触摸开始和结束位置接近）
     const deltaX = touchEndX - this.touchStartX;
@@ -266,6 +225,59 @@ class InputController {
     }
   }
 
+  // 专门处理摇杆触摸开始
+  handleJoystickStart(e) {
+    e.preventDefault();
+    const joystick = this.joystickElement;
+    const container = joystick.parentElement;
+    const rect = container.getBoundingClientRect();
+    this.joystickCenterX = rect.left + rect.width / 2;
+    this.joystickCenterY = rect.top + rect.height / 2;
+    this.isJoystickActive = true;
+    console.log('摇杆触摸开始', this.joystickCenterX, this.joystickCenterY);
+  }
+
+  // 专门处理摇杆移动
+  handleJoystickMove(e) {
+    e.preventDefault();
+    const touch = e.touches[0];
+    const deltaX = touch.clientX - this.joystickCenterX;
+    const deltaY = touch.clientY - this.joystickCenterY;
+    const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+    const maxDistance = 50; // 最大移动距离
+
+    // 计算摇杆位置
+    let moveX = deltaX;
+    let moveY = deltaY;
+    if (distance > maxDistance) {
+      const scale = maxDistance / distance;
+      moveX *= scale;
+      moveY *= scale;
+    }
+
+    // 更新摇杆位置
+    this.joystickElement.style.transform = `translate(calc(-50% + ${moveX}px), calc(-50% + ${moveY}px))`;
+
+    // 根据角度设置移动方向
+    const angle = (Math.atan2(deltaY, deltaX) * 180) / Math.PI;
+    if (angle > -135 && angle <= -45) {
+      this.snake.setDirection('up');
+    } else if (angle > -45 && angle <= 45) {
+      this.snake.setDirection('right');
+    } else if (angle > 45 && angle <= 135) {
+      this.snake.setDirection('down');
+    } else {
+      this.snake.setDirection('left');
+    }
+  }
+
+  // 专门处理摇杆触摸结束
+  handleJoystickEnd(e) {
+    e.preventDefault();
+    this.joystickElement.style.transform = 'translate(-50%, -50%)';
+    this.isJoystickActive = false;
+  }
+
   // 移除事件监听
   removeEventListeners() {
     document.removeEventListener('keydown', this.handleKeyPress);
@@ -273,6 +285,13 @@ class InputController {
     this.canvas.removeEventListener('touchstart', this.handleTouchStart);
     this.canvas.removeEventListener('touchmove', this.handleTouchMove);
     this.canvas.removeEventListener('touchend', this.handleTouchEnd);
+
+    // 移除摇杆事件
+    if (this.joystickElement) {
+      this.joystickElement.removeEventListener('touchstart', this.handleJoystickStart);
+      this.joystickElement.removeEventListener('touchmove', this.handleJoystickMove);
+      this.joystickElement.removeEventListener('touchend', this.handleJoystickEnd);
+    }
   }
 }
 
