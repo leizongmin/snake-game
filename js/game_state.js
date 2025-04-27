@@ -58,24 +58,35 @@ class GameState {
   startGameLoop(snake, food, obstacles) {
     // 清除之前的游戏循环
     if (this.gameLoopId) {
-      clearTimeout(this.gameLoopId);
+      cancelAnimationFrame(this.gameLoopId);
     }
 
-    const gameLoop = () => {
+    let lastTime = 0;
+    const gameLoop = currentTime => {
       if (this.currentState !== this.config.state.PLAYING) return;
 
-      // 移动蛇并检查游戏状态
-      const result = snake.move(food, obstacles);
+      // 计算时间差
+      if (!lastTime) lastTime = currentTime;
+      const deltaTime = currentTime - lastTime;
 
-      if (result.gameOver) {
-        this.gameOver();
-        return;
-      }
+      // 根据游戏速度控制更新频率
+      if (deltaTime >= this.currentMode.speed) {
+        // 移动蛇并检查游戏状态
+        const result = snake.move(food, obstacles);
 
-      // 如果吃到食物，更新分数
-      if (result.ate) {
-        this.updateScore();
-        this.soundManager.play('eat');
+        if (result.gameOver) {
+          this.gameOver();
+          return;
+        }
+
+        // 如果吃到食物，更新分数
+        if (result.ate) {
+          this.updateScore();
+          this.soundManager.play('eat');
+        }
+
+        // 更新时间戳
+        lastTime = currentTime;
       }
 
       // 绘制游戏元素
@@ -85,16 +96,21 @@ class GameState {
       this.renderer.drawSnake(snake);
 
       // 继续下一帧
-      this.gameLoopId = setTimeout(() => gameLoop(), this.currentMode.speed);
+      this.gameLoopId = requestAnimationFrame(gameLoop);
     };
 
     // 启动游戏循环
-    gameLoop();
+    this.gameLoopId = requestAnimationFrame(gameLoop);
   }
 
   // 暂停游戏
   pauseGame() {
     if (this.currentState === this.config.state.PLAYING) {
+      // 暂停游戏时取消动画帧
+      if (this.gameLoopId) {
+        cancelAnimationFrame(this.gameLoopId);
+        this.gameLoopId = null;
+      }
       this.currentState = this.config.state.PAUSED;
       this.renderer.drawPauseScreen();
       this.soundManager.play('pause');
@@ -111,6 +127,11 @@ class GameState {
 
   // 游戏结束
   gameOver() {
+    // 清理动画帧
+    if (this.gameLoopId) {
+      cancelAnimationFrame(this.gameLoopId);
+      this.gameLoopId = null;
+    }
     this.currentState = this.config.state.OVER;
     this.soundManager.play('crash');
     this.renderer.drawGameOverScreen(this.currentMode, this.score);
