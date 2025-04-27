@@ -136,7 +136,7 @@ class GameState {
 
   // 根据当前状态重新渲染游戏界面
   render() {
-    // 子曰：根据游戏状态，选择合适之绘制方法
+    // 根据游戏状态，选择合适之绘制方法
     switch (this.currentState) {
       case this.config.state.READY:
         this.renderer.drawStartScreen(this.currentMode, this.config.modes);

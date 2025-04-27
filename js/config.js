@@ -34,7 +34,7 @@ class GameConfig {
     // 移动设备上使用更小的尺寸
     const isMobile = screenWidth <= 600;
 
-    // 子曰：移动端屏幕，宜小不宜大，留出边距以避免溢出
+    // 移动端屏幕，宜小不宜大，留出边距以避免溢出
     // 移动端使用更小的比例，确保右侧不会溢出
     const maxWidth = isMobile ? screenWidth * 0.85 : screenWidth * 0.6;
     const maxHeight = screenHeight * 0.7; // 画布高度占屏幕70%
