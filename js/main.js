@@ -8,17 +8,16 @@ class Game {
     // 初始化配置
     this.config = new GameConfig();
 
-    // 设置画布尺寸
+    // 初始化渲染器
+    this.renderer = new Renderer(this.canvas);
+
+    // 计算并设置画布尺寸
     const canvasSize = this.config.calculateCanvasSize();
     this.canvas.width = canvasSize.width;
     this.canvas.height = canvasSize.height;
-
-    // 计算方块大小
     this.blockSize = this.config.calculateBlockSize(this.canvas.width, this.canvas.height);
 
-    // 初始化渲染器
-    this.renderer = new Renderer(this.canvas);
-    // 确保设置原始尺寸，解决高DPI屏幕问题
+    // 设置渲染器尺寸并初始化
     this.renderer.originalWidth = canvasSize.width;
     this.renderer.originalHeight = canvasSize.height;
     this.renderer.init(this.blockSize);
@@ -81,10 +80,7 @@ class Game {
     // 添加窗口大小变化事件监听
     window.addEventListener('resize', this.handleResize.bind(this));
 
-    // 确保在移动设备上正确显示
-    if ('ontouchstart' in window || window.innerWidth <= 600) {
-      this.handleResize();
-    }
+    // 移动设备无需额外处理，因为构造函数已经正确设置了尺寸
     // 创建初始食物
     for (let i = 0; i < 3; i++) {
       this.gameObjects.createFood(this.snake);

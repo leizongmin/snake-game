@@ -23,10 +23,19 @@ class GameConfig {
 
   // 根据画布尺寸计算方块大小
   calculateBlockSize(canvasWidth, canvasHeight) {
-    const blockSizeFromWidth = Math.floor(canvasWidth / 20);
-    const blockSizeFromHeight = Math.floor(canvasHeight / 26);
+    // 先定格数
+    const gridWidth = 20;
+    const gridHeight = 26;
+
+    // 计算每格像素
+    const blockSizeFromWidth = Math.floor(canvasWidth / gridWidth);
+    const blockSizeFromHeight = Math.floor(canvasHeight / gridHeight);
     const blockSize = Math.min(blockSizeFromWidth, blockSizeFromHeight);
-    console.log(`画布方格数量: 20x26, 每格尺寸: ${blockSize}px`);
+
+    // 打印格数与像素
+    console.log(`画布方格数量: ${gridWidth}x${gridHeight}, 每格尺寸: ${blockSize}px`);
+
+    // 返回每格像素
     return blockSize;
   }
 

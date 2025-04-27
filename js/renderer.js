@@ -19,9 +19,23 @@ class Renderer {
 
   // 初始化渲染器
   init(blockSize) {
-    this.blockSize = blockSize;
+    // 先定格数
+    const gridWidth = 20;
+    const gridHeight = 26;
 
-    // 初始化时处理高DPI屏幕
+    // 根据格数计算每格像素，确保为整数
+    console.log('原始画布尺寸:', this.originalWidth, 'x', this.originalHeight);
+    const blockSizeFromWidth = Math.floor(this.originalWidth / gridWidth);
+    const blockSizeFromHeight = Math.floor(this.originalHeight / gridHeight);
+    console.log('每格像素计算:', blockSizeFromWidth, blockSizeFromHeight);
+    this.blockSize = Math.floor(Math.min(blockSizeFromWidth, blockSizeFromHeight));
+    console.log('最终格子大小:', this.blockSize);
+
+    // 根据格子像素反向计算画布尺寸，确保为整数倍
+    this.originalWidth = Math.floor(this.blockSize * gridWidth);
+    this.originalHeight = Math.floor(this.blockSize * gridHeight);
+
+    // 初始化高DPI屏幕
     this.setupHiDPI();
   }
 
@@ -30,15 +44,19 @@ class Renderer {
     // 获取设备像素比
     const dpr = window.devicePixelRatio || 1;
 
-    // 如果originalWidth和originalHeight未设置，则使用当前画布尺寸
+    // 确保画布尺寸已设置
     if (!this.originalWidth || !this.originalHeight) {
       this.originalWidth = this.canvas.width;
       this.originalHeight = this.canvas.height;
     }
 
-    // 调整画布实际渲染尺寸
-    this.canvas.width = this.originalWidth * dpr;
-    this.canvas.height = this.originalHeight * dpr;
+    // 调整画布实际渲染尺寸，确保为整数
+    console.log('原画布尺寸:', this.canvas.width, 'x', this.canvas.height);
+    const scaledWidth = Math.floor(this.originalWidth * dpr);
+    const scaledHeight = Math.floor(this.originalHeight * dpr);
+    this.canvas.width = scaledWidth;
+    this.canvas.height = scaledHeight;
+    console.log('新画布尺寸:', scaledWidth, 'x', scaledHeight);
 
     // 使用CSS保持显示尺寸不变
     this.canvas.style.width = this.originalWidth + 'px';
@@ -318,12 +336,12 @@ class Renderer {
   }
 
   drawRect(x, y, color, type = 'default', snake = null) {
-    // 判断是否为移动设备
-    const isMobile = window.innerWidth <= 600;
-    // 移动端减小2像素，PC端保持原样
-    const size = isMobile ? this.blockSize - 2 : this.blockSize;
-    const xPos = x * this.blockSize;
-    const yPos = y * this.blockSize;
+    // 格子大小不因设备而异
+    // 格子大小不因设备而异，以保证边界判断准确
+    const size = this.blockSize;
+    // 计算格子位置时取整，避免浮点数误差
+    const xPos = Math.floor(x * this.blockSize);
+    const yPos = Math.floor(y * this.blockSize);
 
     // 绘制基本形状
     this.ctx.fillStyle = color;

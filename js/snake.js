@@ -106,8 +106,10 @@ class Snake {
         break;
     }
 
-    // 检查是否撞墙
-    if (head.x < 0 || head.x >= this.canvasWidth / this.blockSize || head.y < 0 || head.y >= this.canvasHeight / this.blockSize) {
+    // 检查是否撞墙，以二十六格之高，二十格之宽为界
+    const maxX = 20;
+    const maxY = 26;
+    if (head.x < 0 || head.x >= maxX || head.y < 0 || head.y >= maxY) {
       if (!this.invincible) {
         this.lives--;
         result.gameOver = this.lives <= 0;
