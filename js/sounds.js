@@ -105,6 +105,9 @@ class SoundManager {
           case 'pause':
             this.createPauseSound(cache);
             break;
+          case 'powerup':
+            this.createPowerupSound(cache);
+            break;
         }
       } else {
         // 根据音效类型创建不同的合成音效
@@ -123,6 +126,9 @@ class SoundManager {
             break;
           case 'pause':
             this.createPauseSound();
+            break;
+          case 'powerup':
+            this.createPowerupSound();
             break;
           default:
             console.warn(`未知音效: ${soundName}`);
@@ -394,52 +400,52 @@ class SoundManager {
     };
   }
 
-  // 创建暂停音效 - 下降音调
+  // 创建暂停音效 - 下降音阶
   createPauseSound(cache = null) {
     const now = this.audioContext.currentTime;
-    const duration = 0.3;
+    const duration = 0.4;
     const volume = this.getEffectiveVolume('pause');
 
     // 创建振荡器
     const oscillator = this.audioContext.createOscillator();
-    oscillator.type = 'square';
+    oscillator.type = 'square'; // 方波 - 8位音效特征
 
     // 创建增益节点控制音量
     const gainNode = this.audioContext.createGain();
     gainNode.gain.setValueAtTime(volume, now);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, now + duration);
+    gainNode.gain.linearRampToValueAtTime(0.01, now + duration);
 
     // 创建低通滤波器 - 模拟老式硬件
     const filter = this.createLowPassFilter();
 
-    // 设置频率
+    // 设置频率变化 - 下降音阶表示暂停
     if (cache) {
       // 使用缓存的频率设置
-      oscillator.frequency.setValueAtTime(cache.startFreq, now);
-      oscillator.frequency.exponentialRampToValueAtTime(cache.endFreq, now + duration);
+      cache.frequencies.forEach(freq => {
+        oscillator.frequency.setValueAtTime(freq.value, now + freq.time);
+      });
     } else {
       // 创建新的频率设置
-      const startFreq = 330;
-      const endFreq = 110;
-      oscillator.frequency.setValueAtTime(startFreq, now);
-      oscillator.frequency.exponentialRampToValueAtTime(endFreq, now + duration);
+      const frequencies = [
+        { time: 0, value: 440 },
+        { time: 0.1, value: 330 },
+        { time: 0.2, value: 220 },
+        { time: 0.3, value: 110 },
+      ];
+      frequencies.forEach(freq => {
+        oscillator.frequency.setValueAtTime(freq.value, now + freq.time);
+      });
 
       // 缓存音效配置
       this.soundCache['pause'] = {
-        startFreq,
-        endFreq,
-        duration,
+        frequencies,
       };
     }
 
-    // 连接节点 - 加入低通滤波器
+    // 连接节点
     oscillator.connect(filter);
     filter.connect(gainNode);
     gainNode.connect(this.audioContext.destination);
-
-    // 播放并自动停止
-    oscillator.start(now);
-    oscillator.stop(now + duration);
 
     // 保存节点引用
     this.audioNodes['pause'] = {
@@ -448,6 +454,111 @@ class SoundManager {
       filter,
       endTime: now + duration,
     };
+
+    // 播放并自动停止
+    oscillator.start(now);
+    oscillator.stop(now + duration);
+  }
+
+  // 创建能量提升音效 - 上升和颤音组合
+  createPowerupSound(cache = null) {
+    const now = this.audioContext.currentTime;
+    const duration = 0.5;
+    const volume = this.getEffectiveVolume('powerup') || 0.5; // 默认音量如果未设置
+
+    // 创建振荡器
+    const oscillator = this.audioContext.createOscillator();
+    oscillator.type = 'square'; // 方波 - 8位音效特征
+
+    // 创建第二个振荡器用于和声
+    const harmonicOsc = this.audioContext.createOscillator();
+    harmonicOsc.type = 'triangle'; // 三角波 - 更柔和的音色
+
+    // 创建增益节点控制音量
+    const gainNode = this.audioContext.createGain();
+    gainNode.gain.setValueAtTime(volume, now);
+    gainNode.gain.linearRampToValueAtTime(0.01, now + duration);
+
+    // 创建第二个增益节点
+    const harmonicGain = this.audioContext.createGain();
+    harmonicGain.gain.setValueAtTime(volume * 0.5, now);
+    harmonicGain.gain.linearRampToValueAtTime(0.01, now + duration);
+
+    // 创建低通滤波器 - 模拟老式硬件
+    const filter = this.createLowPassFilter();
+
+    // 设置频率变化 - 快速上升音阶和颤音效果
+    if (cache) {
+      // 使用缓存的频率设置
+      cache.frequencies.forEach(freq => {
+        oscillator.frequency.setValueAtTime(freq.value, now + freq.time);
+      });
+      cache.harmonicFrequencies.forEach(freq => {
+        harmonicOsc.frequency.setValueAtTime(freq.value, now + freq.time);
+      });
+    } else {
+      // 创建新的频率设置 - 主振荡器
+      const frequencies = [
+        { time: 0, value: 330 },
+        { time: 0.1, value: 392 },
+        { time: 0.2, value: 494 },
+        { time: 0.3, value: 587 },
+        { time: 0.4, value: 659 },
+      ];
+      frequencies.forEach(freq => {
+        oscillator.frequency.setValueAtTime(freq.value, now + freq.time);
+      });
+
+      // 创建新的频率设置 - 和声振荡器（高八度）
+      const harmonicFrequencies = [
+        { time: 0, value: 660 },
+        { time: 0.1, value: 784 },
+        { time: 0.2, value: 988 },
+        { time: 0.3, value: 1174 },
+        { time: 0.4, value: 1318 },
+      ];
+      harmonicFrequencies.forEach(freq => {
+        harmonicOsc.frequency.setValueAtTime(freq.value, now + freq.time);
+      });
+
+      // 缓存音效配置
+      this.soundCache['powerup'] = {
+        frequencies,
+        harmonicFrequencies,
+      };
+    }
+
+    // 连接节点
+    oscillator.connect(gainNode);
+    harmonicOsc.connect(harmonicGain);
+    gainNode.connect(filter);
+    harmonicGain.connect(filter);
+    filter.connect(this.effectsGainNode);
+
+    // 存储活动音效
+    this.activeSounds['powerup'] = {
+      oscillator,
+      harmonicOsc,
+      gainNode,
+      harmonicGain,
+    };
+
+    // 开始播放并设置结束时间
+    oscillator.start(now);
+    harmonicOsc.start(now);
+    oscillator.stop(now + duration);
+    harmonicOsc.stop(now + duration);
+
+    // 在音效结束时断开连接
+    setTimeout(() => {
+      if (this.activeSounds['powerup']) {
+        gainNode.disconnect();
+        harmonicGain.disconnect();
+        oscillator.disconnect();
+        harmonicOsc.disconnect();
+        delete this.activeSounds['powerup'];
+      }
+    }, duration * 1000);
   }
 
   // 创建失真曲线 - 用于模拟8位音效的粗糙感
