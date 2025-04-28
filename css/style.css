@@ -144,21 +144,20 @@ canvas:hover {
 
 .mobile-controls {
   display: none;
-  position: fixed;
-  left: 66%;
-  transform: translateX(-50%);
-  bottom: 100px;
   z-index: 100;
 }
 
 .joystick-container {
-  position: relative;
+  position: fixed;
   width: 160px;
   height: 160px;
   border-radius: 50%;
   background: rgba(139, 195, 74, 0.1);
   border: 2px solid rgba(139, 195, 74, 0.2);
   backdrop-filter: blur(4px);
+  right: 30px;
+  bottom: 100px;
+  z-index: 1000;
 }
 
 .joystick {
