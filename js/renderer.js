@@ -31,6 +31,9 @@ class Renderer {
     this.blockSize = Math.floor(Math.min(blockSizeFromWidth, blockSizeFromHeight));
     console.log('最终格子大小:', this.blockSize);
 
+    // 打印当前设备像素比
+    console.log('当前设备像素比(DPR):', this.dpr);
+
     // 根据格子像素反向计算画布尺寸，确保为整数倍
     this.originalWidth = Math.floor(this.blockSize * gridWidth);
     this.originalHeight = Math.floor(this.blockSize * gridHeight);
@@ -41,8 +44,8 @@ class Renderer {
 
   // 设置高DPI屏幕支持
   setupHiDPI() {
-    // 获取设备像素比
-    const dpr = window.devicePixelRatio || 1;
+    // 使用构造函数中已获取的设备像素比
+    const dpr = this.dpr;
 
     // 确保画布尺寸已设置
     if (!this.originalWidth || !this.originalHeight) {
