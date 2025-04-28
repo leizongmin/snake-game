@@ -587,6 +587,14 @@ class Renderer {
     document.getElementById('score').textContent = `得分：${score}`;
   }
 
+  // 显示FPS
+  drawFPS(fps) {
+    if (!fps) return;
+
+    // 更新DOM元素显示FPS，与得分、生命值保持一致样式
+    document.getElementById('fps').textContent = `FPS：${Math.round(fps)}`;
+  }
+
   // 更新生命值显示
   updateLives(lives) {
     document.getElementById('lives').textContent = `生命：${lives}`;

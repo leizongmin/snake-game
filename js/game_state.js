@@ -12,6 +12,10 @@ class GameState {
     // 游戏数据
     this.score = 0;
     this.gameLoopId = null;
+
+    // 性能监控数据
+    this.fps = 0;
+    this.showFps = true; // 是否显示FPS
   }
 
   // 初始化游戏状态
@@ -61,32 +65,39 @@ class GameState {
       cancelAnimationFrame(this.gameLoopId);
     }
 
+    // 记录上一帧的时间戳
     let lastTime = 0;
-    const gameLoop = currentTime => {
+
+    const gameLoop = timestamp => {
       if (this.currentState !== this.config.state.PLAYING) return;
 
       // 计算时间差
-      if (!lastTime) lastTime = currentTime;
-      const deltaTime = currentTime - lastTime;
+      if (!lastTime) lastTime = timestamp;
+      const deltaTime = timestamp - lastTime;
 
       // 根据游戏速度控制更新频率
       if (deltaTime >= this.currentMode.speed) {
         // 移动蛇并检查游戏状态
         const result = snake.move(food, obstacles);
 
+        // 更新生命值显示
+        this.updateLives(snake.lives);
+
         if (result.gameOver) {
           this.gameOver();
           return;
         }
 
-        // 如果吃到食物，更新分数
+        // 若蛇吃到食物，则生成新食物
         if (result.ate) {
+          // 更新分数
           this.updateScore();
+          // 播放音效
           this.soundManager.play('eat');
         }
 
         // 更新时间戳
-        lastTime = currentTime;
+        lastTime = timestamp;
       }
 
       // 绘制游戏元素
