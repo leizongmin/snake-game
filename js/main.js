@@ -368,6 +368,30 @@ class Game {
       }, 200); // 200毫秒间隔，产生明显闪烁效果
     };
   }
+
+  // 应用速度提升效果
+  applySpeedBoost(duration) {
+    // 保存当前游戏速度
+    const originalSpeed = this.gameState.currentMode.speed;
+
+    // 设置蛇的速度提升视觉效果
+    this.snake.setSpeedBoostEffect(true);
+
+    // 提升游戏速度（减小延迟值）
+    this.gameState.currentMode.speed = Math.max(originalSpeed * 0.6, 50);
+
+    console.log(`速度提升：${originalSpeed}ms -> ${this.gameState.currentMode.speed}ms，持续${duration / 1000}秒`);
+
+    // 设置定时器，在指定时间后恢复正常速度
+    setTimeout(() => {
+      // 恢复原始速度
+      this.gameState.currentMode.speed = originalSpeed;
+      // 关闭蛇的速度提升视觉效果
+      this.snake.setSpeedBoostEffect(false);
+
+      console.log('速度恢复正常');
+    }, duration);
+  }
 }
 
 // 当DOM加载完成后初始化游戏

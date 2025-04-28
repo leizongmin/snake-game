@@ -24,6 +24,9 @@ class Snake {
     this.invincible = false;
     this.invincibleTimer = null;
     this.invincibleDuration = 2000; // 无敌时间2秒
+
+    // 速度提升状态
+    this.speedBoostActive = false;
   }
 
   // 重置蛇
@@ -45,6 +48,16 @@ class Snake {
       clearTimeout(this.invincibleTimer);
       this.invincibleTimer = null;
     }
+
+    // 重置速度提升状态
+    this.speedBoostActive = false;
+  }
+
+  // 设置速度提升效果
+  setSpeedBoostEffect(active) {
+    this.speedBoostActive = active;
+    // 这里只设置状态，视觉效果将在渲染时处理
+    console.log(`速度提升效果: ${active ? '开启' : '关闭'}`);
   }
 
   // 获取蛇的长度
