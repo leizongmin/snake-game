@@ -12,38 +12,50 @@ class GameObjects {
     this.obstacles = [];
   }
 
-  // 获取所有可用格子
+  // 获取所有可用格子 - 优化版本
   getAvailablePositions(snake) {
-    const maxX = this.canvasWidth / this.blockSize;
-    const maxY = this.canvasHeight / this.blockSize;
-    const positions = new Set();
+    const maxX = Math.floor(this.canvasWidth / this.blockSize);
+    const maxY = Math.floor(this.canvasHeight / this.blockSize);
 
-    // 生成所有位置的字符串表示
-    for (let x = 0; x < maxX; x++) {
-      for (let y = 0; y < maxY; y++) {
-        positions.add(`${x},${y}`);
+    // 使用二维数组表示格子状态，避免字符串操作
+    // 初始化为全部可用 (true)
+    const grid = Array(maxX)
+      .fill()
+      .map(() => Array(maxY).fill(true));
+
+    // 标记蛇身位置为不可用
+    for (const segment of snake.segments) {
+      if (segment.x >= 0 && segment.x < maxX && segment.y >= 0 && segment.y < maxY) {
+        grid[segment.x][segment.y] = false;
       }
     }
 
-    // 移除蛇身位置
-    snake.segments.forEach(segment => {
-      positions.delete(`${segment.x},${segment.y}`);
-    });
+    // 标记障碍物位置为不可用
+    for (const obstacle of this.obstacles) {
+      if (obstacle.x >= 0 && obstacle.x < maxX && obstacle.y >= 0 && obstacle.y < maxY) {
+        grid[obstacle.x][obstacle.y] = false;
+      }
+    }
 
-    // 移除障碍物位置
-    this.obstacles.forEach(obstacle => {
-      positions.delete(`${obstacle.x},${obstacle.y}`);
-    });
+    // 标记现有食物位置为不可用
+    for (const food of this.foods) {
+      if (food.x >= 0 && food.x < maxX && food.y >= 0 && food.y < maxY) {
+        grid[food.x][food.y] = false;
+      }
+    }
 
-    // 移除现有食物位置
-    this.foods.forEach(food => {
-      positions.delete(`${food.x},${food.y}`);
-    });
+    // 收集所有可用位置
+    const availablePositions = [];
+    for (let x = 0; x < maxX; x++) {
+      for (let y = 0; y < maxY; y++) {
+        if (grid[x][y]) {
+          // 直接创建坐标对象，避免中间字符串转换
+          availablePositions.push({ x, y });
+        }
+      }
+    }
 
-    return Array.from(positions).map(pos => {
-      const [x, y] = pos.split(',').map(Number);
-      return { x, y };
-    });
+    return availablePositions;
   }
 
   // 创建食物
