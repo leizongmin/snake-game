@@ -52,8 +52,11 @@ class GameConfig {
     const maxWidth = isMobile ? screenWidth * 0.85 : screenWidth * 0.6;
     const maxHeight = screenHeight * 0.7; // 画布高度占屏幕70%
 
+    // 先定格数
+    const gridWidth = 20;
+    const gridHeight = 26;
     // 保持宽高比为20:26
-    const aspectRatio = 20 / 26;
+    const aspectRatio = gridWidth / gridHeight;
 
     // 先根据高度计算宽度
     let height = Math.min(600, maxHeight);
@@ -68,13 +71,20 @@ class GameConfig {
     // 确保尺寸为整数，避免小数点导致的溢出问题
     width = Math.floor(width);
     height = Math.floor(height);
-    console.log(`画布实际尺寸: ${width}x${height}像素`);
 
-    // 移动端额外减少几个像素，确保不会出现滚动条
-    if (isMobile) {
-      width -= 4;
-      height -= 4;
-    }
+    // 计算方块大小
+    const blockSizeFromWidth = Math.floor(width / gridWidth);
+    const blockSizeFromHeight = Math.floor(height / gridHeight);
+    const blockSize = Math.min(blockSizeFromWidth, blockSizeFromHeight);
+
+    // 根据方块大小重新计算画布尺寸，确保尺寸与格子数量精确对应
+    width = blockSize * gridWidth;
+    height = blockSize * gridHeight;
+
+    console.log(`画布实际尺寸: ${width}x${height}像素，方块大小: ${blockSize}，格子数量: ${gridWidth}x${gridHeight}`);
+
+    // 注意：不再为移动端减少像素，以确保画布尺寸与格子数量精确对应
+    // 移动端的适配已通过计算合适的方块大小实现
 
     return { width, height };
   }

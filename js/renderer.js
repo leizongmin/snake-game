@@ -335,8 +335,13 @@ class Renderer {
     // 格子大小不因设备而异，以保证边界判断准确
     const size = this.blockSize;
     // 计算格子位置时取整，避免浮点数误差
-    const xPos = Math.floor(x * this.blockSize);
-    const yPos = Math.floor(y * this.blockSize);
+    // 确保渲染位置不会超出画布边界
+    const maxX = Math.floor(this.originalWidth / this.blockSize) - 1;
+    const maxY = Math.floor(this.originalHeight / this.blockSize) - 1;
+    const adjustedX = Math.min(x, maxX);
+    const adjustedY = Math.min(y, maxY);
+    const xPos = Math.floor(adjustedX * this.blockSize);
+    const yPos = Math.floor(adjustedY * this.blockSize);
 
     // 绘制基本形状
     this.ctx.fillStyle = color;

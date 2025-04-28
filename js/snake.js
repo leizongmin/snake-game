@@ -127,7 +127,7 @@ class Snake {
     // 检查是否撞墙，以二十六格之高，二十格之宽为界
     const maxX = 20;
     const maxY = 26;
-    if (newHead.x < 0 || newHead.x >= maxX || newHead.y < 0 || newHead.y >= maxY) {
+    if (newHead.x < 0 || newHead.x > maxX || newHead.y < 0 || newHead.y > maxY) {
       if (!this.invincible) {
         this.lives--;
         result.gameOver = this.lives <= 0;
