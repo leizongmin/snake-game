@@ -111,7 +111,7 @@ class Game {
 
       // 重置游戏对象
       const mode = this.gameState.getMode();
-      this.gameObjects.reset(this.snake, mode.zhangCount);
+      this.gameObjects.reset(this.snake, mode.zhangCount, mode, 0);
 
       // 更换画布风格
       this.renderer.resetBackground();
@@ -186,6 +186,12 @@ class Game {
 
         // 根据游戏速度控制更新频率
         if (deltaTime >= this.gameState.currentMode.speed) {
+          // 更新游戏对象状态（移动障碍物等）
+          if (this.gameState.score > 10) {
+            // 分数大于10才开始有移动障碍物
+            this.gameObjects.update(snake, this.gameState.currentMode, this.gameState.score);
+          }
+
           // 移动蛇并检查游戏状态
           const result = snake.move(food, obstacles);
 
@@ -201,12 +207,38 @@ class Game {
 
           // 若蛇吃到食物，则处理食物和障碍物更新
           if (result.ate) {
-            // 更新分数
+            // 根据食物类型应用不同效果
+            switch (result.foodEffect) {
+              case 'life':
+                // 生命食物效果已在蛇类中处理
+                // 播放特殊音效
+                this.soundManager.play('powerup');
+                break;
+              case 'speed':
+                // 速度食物：临时加速效果（持续5秒）
+                this.applySpeedBoost(5000);
+                // 播放特殊音效
+                this.soundManager.play('powerup');
+                break;
+              case 'score':
+                // 高分食物：额外加分
+                this.gameState.updateScore(); // 额外加1分
+                // 播放特殊音效
+                this.soundManager.play('powerup');
+                break;
+              default:
+                // 普通食物无特殊效果
+                break;
+            }
+
+            // 更新分数（所有食物都加分）
             this.gameState.updateScore();
-            // 播放音效
+
+            // 播放基础吃食物音效
             this.soundManager.play('eat');
-            // 生成新食物
-            const newFood = this.gameObjects.createFood(snake);
+
+            // 生成新食物，传入游戏模式和当前分数
+            const newFood = this.gameObjects.createFood(snake, this.gameState.currentMode, this.gameState.score);
             // 更新传入的food引用
             food.length = 0;
             newFood.forEach(f => food.push(f));
@@ -251,8 +283,8 @@ class Game {
       // 获取当前模式的障碍物数量
       const mode = this.gameState.getMode();
 
-      // 重新生成障碍物
-      this.gameObjects.createObstacles(mode.zhangCount, snake);
+      // 重新生成障碍物，传入游戏模式和当前分数
+      this.gameObjects.createObstacles(mode.zhangCount, snake, this.gameState.currentMode, this.gameState.score);
 
       // 更新传入的obstacles引用，确保游戏循环使用新的障碍物
       obstacles.length = 0; // 清空原数组

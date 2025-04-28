@@ -482,17 +482,41 @@ class Renderer {
   }
 
   // 绘制食物
-  drawFood(foods) {
-    // 遍历食物数组，逐一绘制
-    foods.forEach(food => {
-      this.drawRect(food.x, food.y, food.type || null, 'food');
+  drawFood(food) {
+    food.forEach(f => {
+      // 根据食物类型选择颜色
+      let color = '#FF0000'; // 默认红色（普通食物）
+
+      switch (f.type) {
+        case 'life':
+          color = '#FF5555'; // 生命食物（粉红色）
+          break;
+        case 'speed':
+          color = '#FFFF00'; // 速度食物（黄色）
+          break;
+        case 'score':
+          color = '#00FFFF'; // 高分食物（青色）
+          break;
+        default:
+          color = '#FF0000'; // 普通食物（红色）
+      }
+
+      this.drawRect(f.x, f.y, color, 'food');
     });
   }
 
   // 绘制障碍物
   drawObstacles(obstacles) {
     obstacles.forEach(obstacle => {
-      this.drawRect(obstacle.x, obstacle.y, '#8B4513', 'obstacle');
+      // 根据障碍物类型选择颜色
+      let color = '#8B4513'; // 默认棕色（普通障碍物）
+
+      if (obstacle.type === 'moving') {
+        // 移动障碍物使用不同颜色
+        color = '#8A2BE2'; // 紫色
+      }
+
+      this.drawRect(obstacle.x, obstacle.y, color, 'obstacle');
     });
   }
 

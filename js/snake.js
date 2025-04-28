@@ -72,10 +72,11 @@ class Snake {
 
   // 移动蛇
   move(food, obstacles) {
-    const result = {
-      gameOver: false,
-      ate: false,
-    };
+    // 获取蛇头
+    const head = this.segments[0];
+
+    // 根据方向计算新头部位置
+    const newHead = { ...head };
 
     // 如果有待行方向且不会导致反向，则更新方向
     if (
@@ -89,27 +90,31 @@ class Snake {
       this.nextDirection = 0;
     }
 
-    // 根据方向计算新的头部位置
-    const head = { x: this.segments[0].x, y: this.segments[0].y };
     switch (this.direction) {
-      case 'right':
-        head.x++;
-        break;
-      case 'left':
-        head.x--;
-        break;
       case 'up':
-        head.y--;
+        newHead.y -= 1;
         break;
       case 'down':
-        head.y++;
+        newHead.y += 1;
+        break;
+      case 'left':
+        newHead.x -= 1;
+        break;
+      case 'right':
+        newHead.x += 1;
         break;
     }
+
+    const result = {
+      gameOver: false,
+      ate: false,
+      foodEffect: null,
+    };
 
     // 检查是否撞墙，以二十六格之高，二十格之宽为界
     const maxX = 20;
     const maxY = 26;
-    if (head.x < 0 || head.x >= maxX || head.y < 0 || head.y >= maxY) {
+    if (newHead.x < 0 || newHead.x >= maxX || newHead.y < 0 || newHead.y >= maxY) {
       if (!this.invincible) {
         this.lives--;
         result.gameOver = this.lives <= 0;
@@ -121,7 +126,7 @@ class Snake {
     }
 
     // 检查是否撞到障碍物
-    if (obstacles && obstacles.some(o => o.x === head.x && o.y === head.y)) {
+    if (obstacles && obstacles.some(o => o.x === newHead.x && o.y === newHead.y)) {
       if (!this.invincible) {
         this.lives--;
         result.gameOver = this.lives <= 0;
@@ -133,7 +138,7 @@ class Snake {
     }
 
     // 检查是否撞到自己
-    if (this.segments.some(segment => segment.x === head.x && segment.y === head.y)) {
+    if (this.segments.some(segment => segment.x === newHead.x && segment.y === newHead.y)) {
       if (!this.invincible) {
         this.lives--;
         result.gameOver = this.lives <= 0;
@@ -145,12 +150,30 @@ class Snake {
     }
 
     // 检查是否吃到食物
-    const eatenFood = food.find(f => f.x === head.x && f.y === head.y);
+    const eatenFood = food.find(f => f.x === newHead.x && f.y === newHead.y);
     if (eatenFood) {
       result.ate = true;
-      // 若食用生命之果，则增加生命值，不超十
-      if (eatenFood.type === 'life' && this.lives < 10) {
-        this.lives++;
+
+      // 根据食物类型应用不同效果
+      switch (eatenFood.type) {
+        case 'life':
+          // 若食用生命之果，则增加生命值，不超十
+          if (this.lives < 10) {
+            this.lives++;
+          }
+          result.foodEffect = 'life';
+          break;
+        case 'speed':
+          // 速度食物，临时提升速度
+          result.foodEffect = 'speed';
+          break;
+        case 'score':
+          // 高分食物，额外加分
+          result.foodEffect = 'score';
+          break;
+        default:
+          // 普通食物，只增长身体
+          result.foodEffect = 'normal';
       }
     } else {
       // 若未食，则去尾
@@ -158,10 +181,10 @@ class Snake {
     }
 
     // 在头部添加新的位置
-    this.segments.unshift(head);
+    this.segments.unshift(newHead);
 
     // 打印蛇头位置
-    console.log(`蛇头位置: (${head.x}, ${head.y})`);
+    console.log(`蛇头位置: (${newHead.x}, ${newHead.y})`);
 
     return result;
   }
