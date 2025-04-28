@@ -1,5 +1,42 @@
 // 游戏对象模块 - 负责创建和管理食物、障碍物等游戏元素
 class GameObjects {
+  // 游戏常量配置
+  static CONSTANTS = {
+    // 食物相关常量
+    FOOD: {
+      MAX_COUNT: 8, // 最大食物数量
+      SCORE_BONUS_THRESHOLD: 10, // 每10分增加一个食物上限
+      SNAKE_LENGTH_THRESHOLD: 15, // 蛇长度超过15时减少食物
+    },
+    // 食物类型概率常量
+    FOOD_PROBABILITY: {
+      DEFAULT_LIFE_PROB: 0.2, // 默认生命食物概率
+      DEFAULT_SPEED_PROB: 0.0, // 默认速度食物概率
+      DEFAULT_SCORE_PROB: 0.0, // 默认高分食物概率
+      SCORE_THRESHOLD: 5, // 分数阈值，超过此值引入高分食物
+      SCORE_FOOD_PROB: 0.15, // 高分食物概率
+      SNAKE_LENGTH_THRESHOLD: 10, // 蛇长度阈值，超过此值引入速度食物
+      SNAKE_LENGTH_SPEED_PROB: 0.1, // 蛇长度超过阈值时的速度食物概率
+      DIFFICULT_MODE_BONUS: 0.1, // 困难模式额外生命食物概率
+    },
+    // 障碍物相关常量
+    OBSTACLE: {
+      DANGER_RANGE: 5, // 危险区域范围
+      SCORE_FACTOR_THRESHOLD: 5, // 每5分增加障碍物
+      MAX_SPACE_PERCENTAGE: 0.3, // 障碍物最多占据空间的百分比
+      MOVING_OBSTACLE_THRESHOLD: 10, // 专家模式下，分数超过此值可能出现移动障碍物
+      MOVING_OBSTACLE_PROB: 0.2, // 专家模式下移动障碍物出现概率
+    },
+    // 游戏模式相关常量
+    GAME_MODE: {
+      GROWTH_RATE: {
+        FAST: 0.5, // 快速模式障碍物增长率
+        NORMAL: 0.7, // 普通模式障碍物增长率
+        HARD: 1.0, // 困难模式障碍物增长率
+        EXPERT: 1.5, // 专家模式障碍物增长率
+      },
+    },
+  };
   constructor(canvasWidth, canvasHeight, blockSize) {
     this.canvasWidth = canvasWidth;
     this.canvasHeight = canvasHeight;
@@ -63,10 +100,39 @@ class GameObjects {
     // 清理已被蛇吞之食物
     this.foods = this.foods.filter(food => !this.isOnSnake(food, snake));
 
-    // 根据游戏难度、分数和蛇长度动态计算食物数量
-    let targetFoodCount;
+    // 计算目标食物数量
+    const targetFoodCount = this.calculateTargetFoodCount(snake, gameMode, score);
+
+    // 获取所有可用位置
+    const available = this.getAvailablePositions(snake);
+
+    // 若无可用格，则直接返回
+    if (available.length === 0) {
+      return this.foods;
+    }
+
+    // 生成所需数量的食物
+    while (this.foods.length < targetFoodCount && available.length > 0) {
+      // 随机选取一个位置
+      const idx = Math.floor(Math.random() * available.length);
+      const food = available[idx];
+
+      // 根据游戏进程动态调整食物类型
+      this.assignFoodType(food, snake.segments.length, score, gameMode);
+      this.foods.push(food);
+
+      // 从可用位置中移除已用之格
+      available.splice(idx, 1);
+    }
+
+    return this.foods;
+  }
+
+  // 计算目标食物数量
+  calculateTargetFoodCount(snake, gameMode, score) {
     const snakeLength = snake.segments.length;
     const baseCount = Math.floor(Math.random() * 3) + 1; // 基础食物数量1-3个
+    let targetFoodCount;
 
     // 根据游戏模式调整食物数量
     if (!gameMode) {
@@ -91,71 +157,57 @@ class GameObjects {
           targetFoodCount = baseCount + 1;
       }
 
-      // 根据分数增加食物数量，每10分增加一个食物上限
-      const bonusFromScore = Math.floor(score / 10);
-      targetFoodCount = Math.min(targetFoodCount + bonusFromScore, 8); // 最多8个食物
+      // 根据分数增加食物数量
+      const bonusFromScore = Math.floor(score / GameObjects.CONSTANTS.FOOD.SCORE_BONUS_THRESHOLD);
+      targetFoodCount = Math.min(targetFoodCount + bonusFromScore, GameObjects.CONSTANTS.FOOD.MAX_COUNT);
 
       // 根据蛇的长度调整食物数量，蛇越长食物越少
-      if (snakeLength > 15) {
+      if (snakeLength > GameObjects.CONSTANTS.FOOD.SNAKE_LENGTH_THRESHOLD) {
         targetFoodCount = Math.max(1, targetFoodCount - 1); // 至少保留1个食物
       }
     }
 
-    // 获取所有可用位置
-    const available = this.getAvailablePositions(snake);
-
-    // 若无可用格，则直接返回
-    if (available.length === 0) {
-      return this.foods;
-    }
-
-    // 生成所需数量的食物
-    while (this.foods.length < targetFoodCount && available.length > 0) {
-      // 随机选取一个位置
-      const idx = Math.floor(Math.random() * available.length);
-      const food = available[idx];
-
-      // 根据游戏进程动态调整食物类型
-      this.assignFoodType(food, snakeLength, score, gameMode);
-      this.foods.push(food);
-
-      // 从可用位置中移除已用之格
-      available.splice(idx, 1);
-    }
-
-    return this.foods;
+    return targetFoodCount;
   }
 
   // 根据游戏进程分配食物类型
   assignFoodType(food, snakeLength, score, gameMode) {
-    // 默认食物类型概率
-    let lifeProb = 0.2; // 生命食物概率
-    let speedProb = 0.0; // 速度食物概率
-    let scoreProb = 0.0; // 高分食物概率
+    const PROB = GameObjects.CONSTANTS.FOOD_PROBABILITY;
 
-    // 根据蛇长度和分数调整概率
-    if (score > 5) {
-      // 分数大于5时，引入高分食物
-      scoreProb = 0.15;
-      lifeProb = 0.15;
+    // 默认食物类型概率
+    let lifeProb = PROB.DEFAULT_LIFE_PROB;
+    let speedProb = PROB.DEFAULT_SPEED_PROB;
+    let scoreProb = PROB.DEFAULT_SCORE_PROB;
+
+    // 根据分数调整概率
+    if (score > PROB.SCORE_THRESHOLD) {
+      // 分数大于阈值时，引入高分食物
+      scoreProb = PROB.SCORE_FOOD_PROB;
+      lifeProb = PROB.SCORE_FOOD_PROB; // 同时调整生命食物概率
     }
 
-    if (snakeLength > 10) {
-      // 蛇长度大于10时，引入速度食物
-      speedProb = 0.1;
+    // 根据蛇长度调整概率
+    if (snakeLength > PROB.SNAKE_LENGTH_THRESHOLD) {
+      // 蛇长度大于阈值时，引入速度食物
+      speedProb = PROB.SNAKE_LENGTH_SPEED_PROB;
       // 同时增加生命食物概率
-      lifeProb = 0.2;
+      lifeProb = PROB.DEFAULT_LIFE_PROB;
     }
 
     // 根据游戏模式调整概率
     if (gameMode) {
       if (gameMode.name === '困难' || gameMode.name === '专家') {
         // 困难和专家模式下，增加生命食物概率
-        lifeProb += 0.1;
+        lifeProb += PROB.DIFFICULT_MODE_BONUS;
       }
     }
 
     // 分配食物类型
+    this.determineFoodType(food, lifeProb, speedProb, scoreProb);
+  }
+
+  // 根据概率确定食物类型
+  determineFoodType(food, lifeProb, speedProb, scoreProb) {
     const rand = Math.random();
     if (rand < lifeProb) {
       food.type = 'life';
@@ -171,7 +223,7 @@ class GameObjects {
   // 判断位置是否在蛇头前方的危险区域内
   isInDangerZone(pos, snake) {
     const head = snake.segments[0];
-    const dangerRange = 5;
+    const dangerRange = GameObjects.CONSTANTS.OBSTACLE.DANGER_RANGE;
 
     switch (snake.direction) {
       case 'right':
@@ -212,26 +264,26 @@ class GameObjects {
       obstacleCount = count;
 
       // 根据分数增加障碍物
-      const scoreFactor = Math.floor(score / 5); // 每5分增加障碍物
+      const scoreFactor = Math.floor(score / GameObjects.CONSTANTS.OBSTACLE.SCORE_FACTOR_THRESHOLD);
 
       // 根据游戏模式调整障碍物增长速率
-      let growthRate = 1; // 默认增长率
+      let growthRate = GameObjects.CONSTANTS.GAME_MODE.GROWTH_RATE.HARD; // 默认增长率
 
       switch (gameMode.name) {
         case '快速':
           // 快速模式障碍物增长较慢
-          growthRate = 0.5;
+          growthRate = GameObjects.CONSTANTS.GAME_MODE.GROWTH_RATE.FAST;
           break;
         case '困难':
           // 困难模式障碍物增长适中
-          growthRate = 1;
+          growthRate = GameObjects.CONSTANTS.GAME_MODE.GROWTH_RATE.HARD;
           break;
         case '专家':
           // 专家模式障碍物增长较快
-          growthRate = 1.5;
+          growthRate = GameObjects.CONSTANTS.GAME_MODE.GROWTH_RATE.EXPERT;
           break;
         default: // 普通模式
-          growthRate = 0.7;
+          growthRate = GameObjects.CONSTANTS.GAME_MODE.GROWTH_RATE.NORMAL;
       }
 
       // 计算额外障碍物数量
@@ -251,7 +303,9 @@ class GameObjects {
       obstacleCount = Math.max(count, obstacleCount + additionalObstacles + lengthAdjustment);
 
       // 设置障碍物上限，避免过多导致游戏无法进行
-      const maxObstacles = Math.floor(((this.canvasWidth * this.canvasHeight) / (this.blockSize * this.blockSize)) * 0.3); // 最多占30%空间
+      const maxObstacles = Math.floor(
+        ((this.canvasWidth * this.canvasHeight) / (this.blockSize * this.blockSize)) * GameObjects.CONSTANTS.OBSTACLE.MAX_SPACE_PERCENTAGE
+      );
       obstacleCount = Math.min(obstacleCount, maxObstacles, safePositions.length);
     } else {
       // 兼容旧代码，如果没有传入gameMode和score
@@ -265,7 +319,12 @@ class GameObjects {
       const obstacle = safePositions[idx];
 
       // 根据游戏进程决定是否创建特殊障碍物
-      if (gameMode && gameMode.name === '专家' && score > 10 && Math.random() < 0.2) {
+      if (
+        gameMode &&
+        gameMode.name === '专家' &&
+        score > GameObjects.CONSTANTS.OBSTACLE.MOVING_OBSTACLE_THRESHOLD &&
+        Math.random() < GameObjects.CONSTANTS.OBSTACLE.MOVING_OBSTACLE_PROB
+      ) {
         // 专家模式且分数>10时，有20%概率生成移动障碍物
         obstacle.type = 'moving';
         // 随机设置移动方向
