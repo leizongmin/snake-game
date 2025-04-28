@@ -11,25 +11,17 @@ class Game {
     // 初始化渲染器
     this.renderer = new Renderer(this.canvas);
 
-    // 计算并设置画布尺寸
-    const canvasSize = this.config.calculateCanvasSize();
-    this.canvas.width = canvasSize.width;
-    this.canvas.height = canvasSize.height;
-    this.blockSize = this.config.calculateBlockSize(this.canvas.width, this.canvas.height);
-
-    // 设置渲染器尺寸并初始化
-    this.renderer.originalWidth = canvasSize.width;
-    this.renderer.originalHeight = canvasSize.height;
-    this.renderer.init(this.blockSize);
-
     // 初始化音效管理器
     this.soundManager = new SoundManager();
 
-    // 初始化蛇
-    this.snake = new Snake(this.canvas.width, this.canvas.height, this.blockSize);
+    // 设置画布尺寸（抽象为独立方法）
+    this.setupCanvasSize();
 
-    // 初始化游戏对象
-    this.gameObjects = new GameObjects(this.canvas.width, this.canvas.height, this.blockSize);
+    // 初始化蛇 - 使用renderer.originalWidth而非canvas.width
+    this.snake = new Snake(this.renderer.originalWidth, this.renderer.originalHeight, this.blockSize);
+
+    // 初始化游戏对象 - 使用renderer.originalWidth而非canvas.width
+    this.gameObjects = new GameObjects(this.renderer.originalWidth, this.renderer.originalHeight, this.blockSize);
 
     // 初始化游戏状态
     this.gameState = new GameState(this.renderer, this.soundManager);
@@ -42,10 +34,14 @@ class Game {
     this.init();
   }
 
-  // 处理窗口大小变化
-  handleResize() {
-    // 重新计算画布尺寸
+  // 设置画布尺寸（抽象的独立方法，用于初始化和重置）
+  setupCanvasSize() {
+    // 计算画布尺寸
     const canvasSize = this.config.calculateCanvasSize();
+
+    // 先计算方块大小
+    this.blockSize = this.config.calculateBlockSize(canvasSize.width, canvasSize.height);
+    this.renderer.blockSize = this.blockSize;
 
     // 更新渲染器中的原始尺寸
     this.renderer.originalWidth = canvasSize.width;
@@ -55,20 +51,30 @@ class Game {
     this.canvas.style.width = canvasSize.width + 'px';
     this.canvas.style.height = canvasSize.height + 'px';
 
-    // 重新设置高DPI支持
+    // 重新设置高DPI支持（在设置完所有尺寸后）
     this.renderer.setupHiDPI();
 
-    // 重新计算方块大小
-    this.blockSize = this.config.calculateBlockSize(canvasSize.width, canvasSize.height);
-    this.renderer.blockSize = this.blockSize;
+    // 初始化渲染器（仅在初始化时需要）
+    if (!this.renderer.initialized) {
+      this.renderer.init(this.blockSize);
+      this.renderer.initialized = true;
+    }
+
+    console.log(`新画布尺寸: ${canvasSize.width} x ${canvasSize.height}，方块大小: ${this.blockSize}`);
+  }
+
+  // 处理窗口大小变化
+  handleResize() {
+    // 调用统一的画布尺寸设置方法
+    this.setupCanvasSize();
 
     // 更新蛇和游戏对象的画布尺寸
-    this.snake.canvasWidth = canvasSize.width;
-    this.snake.canvasHeight = canvasSize.height;
+    this.snake.canvasWidth = this.renderer.originalWidth;
+    this.snake.canvasHeight = this.renderer.originalHeight;
     this.snake.blockSize = this.blockSize;
 
-    this.gameObjects.canvasWidth = canvasSize.width;
-    this.gameObjects.canvasHeight = canvasSize.height;
+    this.gameObjects.canvasWidth = this.renderer.originalWidth;
+    this.gameObjects.canvasHeight = this.renderer.originalHeight;
     this.gameObjects.blockSize = this.blockSize;
 
     // 重绘当前场景

@@ -10,6 +10,9 @@ class Renderer {
     this.originalWidth = canvas.width;
     this.originalHeight = canvas.height;
     this.dpr = window.devicePixelRatio || 1;
+
+    // 初始化标志
+    this.initialized = false;
   }
 
   // 重置游戏时更新背景样式
@@ -19,27 +22,17 @@ class Renderer {
 
   // 初始化渲染器
   init(blockSize) {
-    // 先定格数
-    const gridWidth = 20;
-    const gridHeight = 26;
-
-    // 根据格数计算每格像素，确保为整数
-    console.log('原始画布尺寸:', this.originalWidth, 'x', this.originalHeight);
-    const blockSizeFromWidth = Math.floor(this.originalWidth / gridWidth);
-    const blockSizeFromHeight = Math.floor(this.originalHeight / gridHeight);
-    console.log('每格像素计算:', blockSizeFromWidth, blockSizeFromHeight);
-    this.blockSize = Math.floor(Math.min(blockSizeFromWidth, blockSizeFromHeight));
-    console.log('最终格子大小:', this.blockSize);
+    // 使用传入的方块大小
+    if (blockSize) {
+      this.blockSize = blockSize;
+    }
 
     // 打印当前设备像素比
     console.log('当前设备像素比(DPR):', this.dpr);
+    console.log('最终格子大小:', this.blockSize);
 
-    // 根据格子像素反向计算画布尺寸，确保为整数倍
-    this.originalWidth = Math.floor(this.blockSize * gridWidth);
-    this.originalHeight = Math.floor(this.blockSize * gridHeight);
-
-    // 初始化高DPI屏幕
-    this.setupHiDPI();
+    // 不再重新计算画布尺寸，也不再调用setupHiDPI
+    // 这些操作已经在setupCanvasSize中完成
   }
 
   // 设置高DPI屏幕支持
@@ -61,9 +54,8 @@ class Renderer {
     this.canvas.height = scaledHeight;
     console.log('新画布尺寸:', scaledWidth, 'x', scaledHeight);
 
-    // 使用CSS保持显示尺寸不变
-    this.canvas.style.width = this.originalWidth + 'px';
-    this.canvas.style.height = this.originalHeight + 'px';
+    // 不再设置CSS样式尺寸，这已经在setupCanvasSize中完成
+    // 避免重复设置导致的尺寸不一致问题
 
     // 缩放绘图上下文以匹配设备像素比
     this.ctx.scale(dpr, dpr);
