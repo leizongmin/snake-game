@@ -251,7 +251,7 @@ canvas:hover {
     left: 0;
     right: 0;
     bottom: 40px; /* 为底栏预留空间 */
-    padding: 10px;
+    padding: 20px 0;
     margin: 0;
     border-radius: 0;
     width: 100%;
