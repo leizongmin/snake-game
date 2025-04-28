@@ -6,6 +6,8 @@ class SoundManager {
     this.audioNodes = {};
     // 音效缓存 - 减少频繁创建音频上下文的开销
     this.soundCache = {};
+    // 活动音效存储 - 用于管理正在播放的音效
+    this.activeSounds = {};
     // 默认音量设置
     this.volumeSettings = {
       start: 0.3,
@@ -533,7 +535,7 @@ class SoundManager {
     harmonicOsc.connect(harmonicGain);
     gainNode.connect(filter);
     harmonicGain.connect(filter);
-    filter.connect(this.effectsGainNode);
+    filter.connect(this.audioContext.destination);
 
     // 存储活动音效
     this.activeSounds['powerup'] = {
